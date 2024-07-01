@@ -1,6 +1,6 @@
-Require Import Coq.ZArith.BinIntDef Coq.ZArith.BinInt coqutil.Z.Lia.
-Require Import coqutil.Tactics.destr.
-Require Import coqutil.sanity coqutil.Word.Interface. Import word.
+Require Import Coq.ZArith.BinIntDef Coq.ZArith.BinInt nondet.coqutil.Z.Lia.
+Require Import nondet.coqutil.Tactics.destr.
+Require Import nondet.coqutil.sanity nondet.coqutil.Word.Interface. Import word.
 Local Open Scope Z_scope.
 
 (* TODO: move me? *)
@@ -135,7 +135,7 @@ Definition ok width: 0 < width -> word.ok (word width) :=
 
 (* NOTE: this can be moved into a separate file to build Properties and the above in parallel *)
 (** [Add Ring] for sizes used in instruction sets of common processors *)
-Require coqutil.Word.Properties.
+Require nondet.coqutil.Word.Properties.
 Notation word1 := (word 1%Z).
 #[global] Instance word1_ok : word.ok word1 := ok 1 eq_refl.
 Add Ring wring1 : (Properties.word.ring_theory (word := word1))

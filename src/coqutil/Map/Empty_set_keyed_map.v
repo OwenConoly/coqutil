@@ -1,5 +1,5 @@
 Local Unset Universe Minimization ToSet.
-Require Import coqutil.Map.Interface.
+Require Import nondet.coqutil.Map.Interface.
 
 #[export] Instance map(V: Type): map.map Empty_set V := {|
   map.rep := unit;

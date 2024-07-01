@@ -69,7 +69,7 @@ Tactic Notation "rewr" tactic(getEq) "in" "*" := rewr getEq in * by fail.
 
 (* Demo: *)
 
-Require Import Coq.Lists.List coqutil.Datatypes.List.
+Require Import Coq.Lists.List nondet.coqutil.Datatypes.List.
 
 Goal forall (T: Type) (a b: list T),
     (forall (c: list T), length a + length c + 0 = length (a ++ b)) ->

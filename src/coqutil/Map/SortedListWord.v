@@ -1,6 +1,6 @@
-Require Import Coq.ZArith.BinInt coqutil.Z.Lia.
-Require Import coqutil.Word.Interface coqutil.Map.Interface.
-Require coqutil.Map.SortedList.
+Require Import Coq.ZArith.BinInt nondet.coqutil.Z.Lia.
+Require Import nondet.coqutil.Word.Interface nondet.coqutil.Map.Interface.
+Require nondet.coqutil.Map.SortedList.
 
 Section __. Local Set Default Proof Using "All".
   Context {width} (word : word width) {word_ok : @word.ok width word}.

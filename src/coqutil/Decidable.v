@@ -1,4 +1,4 @@
-Require Import coqutil.sanity.
+Require Import nondet.coqutil.sanity.
 Require Import Coq.Arith.PeanoNat.
 Require Import Coq.Arith.Compare_dec.
 Require Import Coq.ZArith.BinInt.

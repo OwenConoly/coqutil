@@ -1,8 +1,8 @@
-Require Import coqutil.Tactics.autoforward coqutil.Tactics.destr coqutil.Decidable coqutil.Map.Interface.
-Require Import coqutil.Z.Lia.
+Require Import nondet.coqutil.Tactics.autoforward nondet.coqutil.Tactics.destr nondet.coqutil.Decidable nondet.coqutil.Map.Interface.
+Require Import nondet.coqutil.Z.Lia.
 Import map.
-Require Import coqutil.Datatypes.Option.
-Require Import coqutil.Sorting.Permutation.
+Require Import nondet.coqutil.Datatypes.Option.
+Require Import nondet.coqutil.Sorting.Permutation.
 
 Module map.
   Section WithMap. Local Set Default Proof Using "All".

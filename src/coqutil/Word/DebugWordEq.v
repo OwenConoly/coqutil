@@ -1,6 +1,6 @@
 From Coq Require Import ZArith.
 Require Coq.setoid_ring.Ring_theory.
-Require Import coqutil.Word.Interface coqutil.Word.Properties.
+Require Import nondet.coqutil.Word.Interface nondet.coqutil.Word.Properties.
 
 Section WithWord. Local Set Default Proof Using "All".
   Context {width: Z} {word: word.word width} {word_ok: word.ok word}.

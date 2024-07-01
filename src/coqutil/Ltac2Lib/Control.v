@@ -1,5 +1,5 @@
 Require Import Ltac2.Ltac2.
-Require coqutil.Ltac2Lib.List.
+Require nondet.coqutil.Ltac2Lib.List.
 
 Ltac2 hyp_index(i: ident) :=
   List.find_index (fun p => let (h, obody, tp) := p in Ident.equal h i) (Control.hyps ()).

@@ -135,7 +135,7 @@ Ltac instantiate_evar_with_econstructor e :=
   unshelve refine (let y: T := _ in _);
   [econstructor; shelve| unify e y; subst y].
 
-Require Import coqutil.Datatypes.PrimitivePair coqutil.Datatypes.HList.
+Require Import nondet.coqutil.Datatypes.PrimitivePair nondet.coqutil.Datatypes.HList.
 
 Record TestRecord{A: Type}{n: nat} := {
   OtherTestRecordField: unit;

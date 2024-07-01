@@ -1,6 +1,6 @@
 Require Import Ltac2.Ltac2.
-Require Import coqutil.Ltac2Lib.Pervasives.
-Require coqutil.Ltac2Lib.Std.
+Require Import nondet.coqutil.Ltac2Lib.Pervasives.
+Require nondet.coqutil.Ltac2Lib.Std.
 
 Ltac2 rec first_val0 tacs :=
   match tacs with

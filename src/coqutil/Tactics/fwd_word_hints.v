@@ -1,7 +1,7 @@
 Require Import Coq.Program.Tactics.
 Require Import Coq.ZArith.ZArith. Local Open Scope Z_scope.
-Require Import coqutil.Word.Interface coqutil.Word.Properties.
-Require Import coqutil.Tactics.autoforward.
+Require Import nondet.coqutil.Word.Interface nondet.coqutil.Word.Properties.
+Require Import nondet.coqutil.Tactics.autoforward.
 
 (* Using rapply instead of eapply because with eapply, we'd first have to unfold autoforward *)
 

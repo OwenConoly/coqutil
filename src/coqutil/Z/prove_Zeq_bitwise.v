@@ -1,8 +1,8 @@
 (* same application area as "bitblast", but a bit more complex and a bit more powerful *)
 
 Require Import Coq.ZArith.ZArith.
-Require Import coqutil.Z.Lia.
-Require Import coqutil.Z.BitOps.
+Require Import nondet.coqutil.Z.Lia.
+Require Import nondet.coqutil.Z.BitOps.
 Require Export Coq.setoid_ring.ZArithRing.
 Require Import Coq.btauto.Btauto.
 

@@ -1,6 +1,6 @@
 Require Import ZArith.
-Require Import Coq.Lists.List coqutil.Datatypes.List coqutil.Datatypes.ZList.
-Require Import coqutil.Map.Interface coqutil.Map.OfFunc.
+Require Import Coq.Lists.List nondet.coqutil.Datatypes.List nondet.coqutil.Datatypes.ZList.
+Require Import nondet.coqutil.Map.Interface nondet.coqutil.Map.OfFunc.
 Import Interface.map MapKeys.map OfFunc.map.
 
 Module map.

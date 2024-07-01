@@ -1,4 +1,4 @@
-From coqutil Require Import sanity Macros.subst Macros.unique Map.Interface.
+From nondet.coqutil Require Import sanity Macros.subst Macros.unique Map.Interface.
 From Coq.Logic Require Import FunctionalExtensionality.
 
 Module Import parameters.

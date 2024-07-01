@@ -1,5 +1,5 @@
 Require Import Coq.ZArith.BinInt.
-Require Import coqutil.Z.div_mod_to_equations.
+Require Import nondet.coqutil.Z.div_mod_to_equations.
 Local Open Scope Z_scope.
 
 Module Z.

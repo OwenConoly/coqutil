@@ -1,7 +1,7 @@
 (* A forward-reasoning tactic that can be extended using typeclasses to add
    more lemmas to be applied in hypotheses and using an autorewrite db to add
    more rewrites *)
-Require Import coqutil.Tactics.autoforward coqutil.Tactics.destr.
+Require Import nondet.coqutil.Tactics.autoforward nondet.coqutil.Tactics.destr.
 Require Import Coq.ZArith.BinInt Coq.NArith.BinNat.
 
 Ltac is_var_without_rhs x :=

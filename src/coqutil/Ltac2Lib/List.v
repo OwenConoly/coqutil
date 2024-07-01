@@ -1,5 +1,5 @@
 Require Import Ltac2.Ltac2.
-Require Export coqutil.Ltac2Lib.Pervasives.
+Require Export nondet.coqutil.Ltac2Lib.Pervasives.
 
 Ltac2 rec last xs :=
  match xs with

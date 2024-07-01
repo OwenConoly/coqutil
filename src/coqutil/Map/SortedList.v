@@ -1,4 +1,4 @@
-Require Import coqutil.Macros.subst coqutil.Macros.unique coqutil.Map.Interface.
+Require Import nondet.coqutil.Macros.subst nondet.coqutil.Macros.unique nondet.coqutil.Map.Interface.
 Require Coq.Lists.List.
 Require Coq.Logic.Eqdep_dec.
 

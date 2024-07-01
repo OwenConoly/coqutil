@@ -1,11 +1,11 @@
 Require Import Coq.ZArith.ZArith.
-Require Import coqutil.Z.Lia Coq.micromega.Lia.
-Require Import coqutil.Word.Interface.
-Require Import coqutil.Word.Properties.
-Require Import coqutil.Z.bitblast.
-Require Import coqutil.Z.prove_Zeq_bitwise.
-Require Import coqutil.Byte.
-Require coqutil.Datatypes.List.
+Require Import nondet.coqutil.Z.Lia Coq.micromega.Lia.
+Require Import nondet.coqutil.Word.Interface.
+Require Import nondet.coqutil.Word.Properties.
+Require Import nondet.coqutil.Z.bitblast.
+Require Import nondet.coqutil.Z.prove_Zeq_bitwise.
+Require Import nondet.coqutil.Byte.
+Require nondet.coqutil.Datatypes.List.
 
 Local Open Scope Z_scope.
 

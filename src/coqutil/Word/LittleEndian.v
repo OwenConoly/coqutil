@@ -1,10 +1,10 @@
 Require Import Coq.ZArith.ZArith.
-Require Import coqutil.Z.Lia.
-Require Import coqutil.Word.Interface coqutil.Datatypes.HList coqutil.Datatypes.PrimitivePair.
-Require Import coqutil.Word.Properties.
-Require Import coqutil.Z.bitblast.
-Require Import coqutil.Z.prove_Zeq_bitwise.
-Require Import coqutil.Byte.
+Require Import nondet.coqutil.Z.Lia.
+Require Import nondet.coqutil.Word.Interface nondet.coqutil.Datatypes.HList nondet.coqutil.Datatypes.PrimitivePair.
+Require Import nondet.coqutil.Word.Properties.
+Require Import nondet.coqutil.Z.bitblast.
+Require Import nondet.coqutil.Z.prove_Zeq_bitwise.
+Require Import nondet.coqutil.Byte.
 Local Set Universe Polymorphism.
 
 Local Open Scope Z_scope.
@@ -106,7 +106,7 @@ End LittleEndian.
 Notation combine := combine_deprecated (only parsing).
 Notation split := split_deprecated (only parsing).
 
-Require Import coqutil.Word.LittleEndianList.
+Require Import nondet.coqutil.Word.LittleEndianList.
 
 Local Arguments le_combine !_.
 Local Arguments le_split !_.

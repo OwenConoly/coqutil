@@ -1,7 +1,7 @@
-Require Import coqutil.sanity.
-Require Import coqutil.Datatypes.HList.
-Require Import coqutil.Datatypes.List.
-Require Import coqutil.Datatypes.PropSet.
+Require Import nondet.coqutil.sanity.
+Require Import nondet.coqutil.Datatypes.HList.
+Require Import nondet.coqutil.Datatypes.List.
+Require Import nondet.coqutil.Datatypes.PropSet.
 
 Module map.
   Class map {key value} := mk {

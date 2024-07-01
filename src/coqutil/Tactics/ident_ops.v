@@ -1,5 +1,5 @@
 Require Import Ltac2.Ltac2. Set Default Proof Mode "Classic".
-Require coqutil.Ltac2Lib.Ident coqutil.Ltac2Lib.Control.
+Require nondet.coqutil.Ltac2Lib.Ident nondet.coqutil.Ltac2Lib.Control.
 
 Ltac _ident_starts_with := ltac2:(prefix i |-
   if Ident.starts_with (Option.get (Ltac1.to_ident prefix)) (Option.get (Ltac1.to_ident i))

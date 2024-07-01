@@ -1,5 +1,5 @@
-Require Import coqutil.Map.Interface Coq.Strings.String.
-Require coqutil.Map.SortedListString.
+Require Import nondet.coqutil.Map.Interface Coq.Strings.String.
+Require nondet.coqutil.Map.SortedListString.
 Local Existing Instance SortedListString.map.
 Local Open Scope string_scope. Local Open Scope list_scope.
 Local Existing Instance SortedListString.map.

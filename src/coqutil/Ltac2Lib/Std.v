@@ -1,5 +1,5 @@
 Require Import Ltac2.Ltac2 Ltac2.Std.
-Require Import coqutil.Ltac2Lib.Pervasives.
+Require Import nondet.coqutil.Ltac2Lib.Pervasives.
 
 (* Beware: Ltac2's Std.eval_cbv does not match Ltac1's `eval cbv in`!
    https://github.com/coq/coq/issues/14303 *)

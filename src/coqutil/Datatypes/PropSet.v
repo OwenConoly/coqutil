@@ -3,7 +3,7 @@ Require Import Coq.Classes.Morphisms.
 Require Import Coq.Classes.RelationClasses.
 Require Import Coq.Logic.PropExtensionality.
 Require Import Coq.Logic.FunctionalExtensionality.
-Require Import coqutil.Tactics.destr.
+Require Import nondet.coqutil.Tactics.destr.
 
 Definition set(A: Type) := A -> Prop.
 
@@ -343,7 +343,7 @@ Section PropSetLemmas. Local Set Default Proof Using "All".
 End PropSetLemmas.
 
 Require Import Coq.Program.Tactics.
-Require Import coqutil.Tactics.Tactics.
+Require Import nondet.coqutil.Tactics.Tactics.
 
 Ltac set_solver_generic E :=
   repeat (so fun hyporgoal => match hyporgoal with

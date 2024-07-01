@@ -1,8 +1,8 @@
-Require Import coqutil.Decidable.
-Require Import coqutil.Map.Interface coqutil.Map.Properties.
-Require Import coqutil.Map.Solver.
-Require Import coqutil.Datatypes.PropSet.
-Require Import coqutil.Tactics.destr.
+Require Import nondet.coqutil.Decidable.
+Require Import nondet.coqutil.Map.Interface nondet.coqutil.Map.Properties.
+Require Import nondet.coqutil.Map.Solver.
+Require Import nondet.coqutil.Datatypes.PropSet.
+Require Import nondet.coqutil.Tactics.destr.
 
 Section WithParams. Local Set Default Proof Using "All".
   Import Interface.map.

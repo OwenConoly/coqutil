@@ -1,5 +1,5 @@
 Require Import Ltac2.Ltac2.
-Require coqutil.Ltac2Lib.Char.
+Require nondet.coqutil.Ltac2Lib.Char.
 
 Ltac2 concat (ss : string list) : string :=
   let l := List.fold_right Int.add 0 (List.map String.length ss) in

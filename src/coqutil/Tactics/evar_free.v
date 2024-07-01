@@ -1,4 +1,4 @@
-Require Import coqutil.Tactics.foreach_hyp.
+Require Import nondet.coqutil.Tactics.foreach_hyp.
 
 Ltac hyp_is_evar_free h tp :=
   tryif has_evar tp then fail "hypothesis" h "is not evar-free" else idtac.

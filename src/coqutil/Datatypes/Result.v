@@ -1,7 +1,7 @@
 Require Import Coq.Strings.String.
 (* Almost everyone importing this file will need strings in their error messages *)
 Export Coq.Strings.String.StringSyntax.
-Require Import coqutil.Datatypes.dlist.
+Require Import nondet.coqutil.Datatypes.dlist.
 
 Inductive result{A: Type}: Type :=
 | Success(a: A)
@@ -100,10 +100,10 @@ Module List.
   End WithA.
 End List.
 
-Require Import coqutil.Map.Interface coqutil.Map.Properties.
-Require Import coqutil.Decidable.
-Require Import coqutil.Tactics.fwd.
-Require Import coqutil.Tactics.destr.
+Require Import nondet.coqutil.Map.Interface nondet.coqutil.Map.Properties.
+Require Import nondet.coqutil.Decidable.
+Require Import nondet.coqutil.Tactics.fwd.
+Require Import nondet.coqutil.Tactics.destr.
 
 Module map.
   Import ResultMonadNotations.

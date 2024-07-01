@@ -1,5 +1,5 @@
 Require Import Coq.ZArith.BinInt.
-Require Import coqutil.Z.Lia.
+Require Import nondet.coqutil.Z.Lia.
 Require Import Coq.ZArith.ZArith.
 
 Local Open Scope Z_scope.
