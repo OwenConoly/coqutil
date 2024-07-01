@@ -1,4 +1,4 @@
-Require Import coqutil.Decidable.
+Require Import det.coqutil.Decidable.
 Require Coq.NArith.BinNatDef.
 
 Require Export Coq.Strings.String.

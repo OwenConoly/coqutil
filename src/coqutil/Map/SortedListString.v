@@ -1,5 +1,5 @@
-From coqutil Require Import sanity.
-Require coqutil.Map.SortedList coqutil.Datatypes.String.
+From det.coqutil Require Import sanity.
+Require det.coqutil.Map.SortedList det.coqutil.Datatypes.String.
 (* Make this an instance so we can use single-curly-braces so we don't need to qualify field-names with [SortedList.parameters.] *)
 Local Instance string_strict_order: @SortedList.parameters.strict_order _ String.ltb
   := { ltb_antirefl := String.ltb_antirefl

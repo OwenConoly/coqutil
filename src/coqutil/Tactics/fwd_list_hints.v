@@ -1,7 +1,7 @@
 Require Import Coq.Program.Tactics.
 Require Import Coq.Lists.List.
-Require Import coqutil.Datatypes.List.
-Require Import coqutil.Tactics.autoforward.
+Require Import det.coqutil.Datatypes.List.
+Require Import det.coqutil.Tactics.autoforward.
 
 #[export] Hint Rewrite <- List.app_assoc : fwd_rewrites.
 

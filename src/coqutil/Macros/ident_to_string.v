@@ -1,4 +1,4 @@
-Require Import coqutil.Tactics.ident_to_string.
+Require Import det.coqutil.Tactics.ident_to_string.
 
 Notation "ident_to_string! x" := (
   match (fun x : Set => x) return String.string with x => ltac:(

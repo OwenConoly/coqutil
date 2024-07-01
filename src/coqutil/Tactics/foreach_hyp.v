@@ -1,5 +1,5 @@
 Require Import Ltac2.Ltac2.
-Require coqutil.Ltac2Lib.List.
+Require det.coqutil.Ltac2Lib.List.
 
 Ltac2 foreach_hyp_in_list(f: ident -> constr -> unit) :=
   List.iter (fun p => let (h, obody, tp) := p in

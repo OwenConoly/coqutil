@@ -1,11 +1,11 @@
 From Coq Require Import ZArith.
 Require Import Coq.ZArith.Zpow_facts.
-Require Import coqutil.Z.div_mod_to_equations.
-Require Import coqutil.Z.Lia Btauto.
-Require Import coqutil.Z.PushPullMod.
+Require Import det.coqutil.Z.div_mod_to_equations.
+Require Import det.coqutil.Z.Lia Btauto.
+Require Import det.coqutil.Z.PushPullMod.
 Require Coq.setoid_ring.Ring_theory.
-Require Import coqutil.Z.bitblast.
-Require Import coqutil.Word.Interface. Import word.
+Require Import det.coqutil.Z.bitblast.
+Require Import det.coqutil.Word.Interface. Import word.
 
 Local Open Scope Z_scope.
 
@@ -591,7 +591,7 @@ Module word.
   End WordConvenienceKitchenSink.
 End word.
 
-Require Import coqutil.Decidable.
+Require Import det.coqutil.Decidable.
 
 #[global] Existing Instances word.eqb_spec word.ltu_spec word.lts_spec.
 

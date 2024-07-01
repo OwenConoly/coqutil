@@ -10,8 +10,8 @@
 Require Import Coq.Program.Basics.
 Require Import Ltac2.Ltac2.
 Require Import Ltac2.Bool.
-Require Import coqutil.Ltac2Lib.Constr.
-Require Import coqutil.Tactics.RecordEta.
+Require Import det.coqutil.Ltac2Lib.Constr.
+Require Import det.coqutil.Tactics.RecordEta.
 Set Default Proof Mode "Classic".
 
 Class Setter{R E: Type}(getter: R -> E): Type := set: (E -> E) -> R -> R.

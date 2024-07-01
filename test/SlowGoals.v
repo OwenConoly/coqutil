@@ -1,7 +1,7 @@
-Require Import coqutil.Decidable.
-Require Import coqutil.Datatypes.PropSet.
-Require Import coqutil.Map.Interface.
-Require Import coqutil.Map.Solver.
+Require Import det.coqutil.Decidable.
+Require Import det.coqutil.Datatypes.PropSet.
+Require Import det.coqutil.Map.Interface.
+Require Import det.coqutil.Map.Solver.
 
 (*Local Set Ltac Profiling.*)
 

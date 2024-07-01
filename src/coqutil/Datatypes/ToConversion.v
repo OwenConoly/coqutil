@@ -16,8 +16,8 @@ Notation "a 'to' R" :=
    end)
   (at level 15, no associativity, only parsing) : conversion_parse_scope.
 
-Require Import coqutil.Byte.
-Require Import coqutil.Word.Interface.
+Require Import det.coqutil.Byte.
+Require Import det.coqutil.Word.Interface.
 Require Import Coq.ZArith.ZArith.
 
 (* We define all 4*3 conversions between {byte, word, nat, Z}.

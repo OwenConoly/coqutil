@@ -21,11 +21,11 @@ End InhabitedTests.
 
 (* TODO move code below to specific files *)
 
-Require Import coqutil.Word.Interface.
+Require Import det.coqutil.Word.Interface.
 Global Instance word_inhabited{width: BinInt.Z}{word: word.word width}: inhabited word :=
   mk_inhabited (word.of_Z BinInt.Z0).
 
-Require Import coqutil.Map.Interface.
+Require Import det.coqutil.Map.Interface.
 Global Instance map_inhabited{key value: Type}{map: map.map key value}: inhabited map :=
   mk_inhabited map.empty.
 

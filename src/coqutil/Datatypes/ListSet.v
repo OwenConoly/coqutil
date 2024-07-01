@@ -2,11 +2,11 @@ Require Import Coq.Lists.List.
 Import ListNotations.
 Require Import Coq.Logic.PropExtensionality.
 Require Import Coq.Logic.FunctionalExtensionality.
-Require Import coqutil.Decidable.
-Require Import coqutil.Datatypes.PropSet.
-Require Import coqutil.Datatypes.List.
-Require Import coqutil.Tactics.Tactics.
-Require Import coqutil.Z.Lia.
+Require Import det.coqutil.Decidable.
+Require Import det.coqutil.Datatypes.PropSet.
+Require Import det.coqutil.Datatypes.List.
+Require Import det.coqutil.Tactics.Tactics.
+Require Import det.coqutil.Z.Lia.
 
 Section ListSetDefs. Local Set Default Proof Using "All".
   Context {E: Type}.

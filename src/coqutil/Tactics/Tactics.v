@@ -1,7 +1,7 @@
 Require Import Coq.ZArith.ZArith.
-Require coqutil.Decidable.
-Require Export coqutil.Tactics.forward.
-Require Export coqutil.Tactics.destr.
+Require det.coqutil.Decidable.
+Require Export det.coqutil.Tactics.forward.
+Require Export det.coqutil.Tactics.destr.
 
 Tactic Notation "forget" constr(X) "as" ident(y) := set (y:=X) in *; clearbody y.
 

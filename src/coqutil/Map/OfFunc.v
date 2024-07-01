@@ -1,6 +1,6 @@
-Require Import coqutil.Decidable coqutil.Map.Interface coqutil.Map.MapKeys.
-Require Import coqutil.Z.Lia.
-Require coqutil.Decidable coqutil.Map.Properties.
+Require Import det.coqutil.Decidable det.coqutil.Map.Interface det.coqutil.Map.MapKeys.
+Require Import det.coqutil.Z.Lia.
+Require det.coqutil.Decidable det.coqutil.Map.Properties.
 Require Coq.Lists.List.
 Import MapKeys.map Interface.map.
 
@@ -76,7 +76,7 @@ Module map.
     Proof. eauto using get_of_func_In. Qed.
   End OfFunc.
 
-  Import Coq.Lists.List coqutil.Datatypes.List Interface.map.
+  Import Coq.Lists.List det.coqutil.Datatypes.List Interface.map.
   Section OfListNatAt. Local Set Default Proof Using "All".
     Context {value : Type} {map : map nat value} {ok : map.ok map}.
     Definition of_list_nat (xs : list value) : map :=

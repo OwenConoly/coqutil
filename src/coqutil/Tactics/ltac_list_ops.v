@@ -1,4 +1,4 @@
-Require Import coqutil.Tactics.syntactic_unify.
+Require Import det.coqutil.Tactics.syntactic_unify.
 
 Ltac map_with_ltac f l :=
   lazymatch l with

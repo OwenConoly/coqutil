@@ -1,6 +1,6 @@
-Require Import coqutil.Tactics.Tactics.
+Require Import det.coqutil.Tactics.Tactics.
 Require Import Ltac2.Ltac2.
-Require Import coqutil.Ltac2Lib.Constr.
+Require Import det.coqutil.Ltac2Lib.Constr.
 Set Default Proof Mode "Classic".
 
 (* This file provides a mechanism to incrementally declare a collection

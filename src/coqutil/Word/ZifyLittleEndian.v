@@ -1,9 +1,9 @@
-Require Import coqutil.Word.LittleEndian.
+Require Import det.coqutil.Word.LittleEndian.
 Require Import Coq.micromega.ZifyClasses.
 Require Import Coq.micromega.Lia.
 Require Import Coq.ZArith.ZArith. Local Open Scope Z_scope.
-Require Import coqutil.Byte.
-Import coqutil.Datatypes.HList.
+Require Import det.coqutil.Byte.
+Import det.coqutil.Datatypes.HList.
 
 (* Why repeat this for several n, instead of defining one instance parameterized over n?
    Because https://github.com/coq/coq/issues/14054 *)

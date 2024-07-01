@@ -1,9 +1,9 @@
-Require Import coqutil.Decidable.
-Require Import coqutil.Datatypes.Option.
-Require Import coqutil.Tactics.Tactics.
-Require Import coqutil.Map.Interface.
-Require Import coqutil.Map.Properties.
-Require Import coqutil.Datatypes.PropSet.
+Require Import det.coqutil.Decidable.
+Require Import det.coqutil.Datatypes.Option.
+Require Import det.coqutil.Tactics.Tactics.
+Require Import det.coqutil.Map.Interface.
+Require Import det.coqutil.Map.Properties.
+Require Import det.coqutil.Datatypes.PropSet.
 
 (* Redefine some functions so that we can cbn/cbv them without accidentally simplifying
    user terms. *)

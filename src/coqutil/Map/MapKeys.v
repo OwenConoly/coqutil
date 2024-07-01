@@ -1,5 +1,5 @@
-Require Import coqutil.Decidable coqutil.Map.Interface.
-Require coqutil.Decidable coqutil.Map.Properties.
+Require Import det.coqutil.Decidable det.coqutil.Map.Interface.
+Require det.coqutil.Decidable det.coqutil.Map.Properties.
 Import Interface.map.
 
 Module map.

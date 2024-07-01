@@ -4,9 +4,9 @@
    of the original list. *)
 
 Require Import Coq.Arith.PeanoNat.
-Require Import coqutil.Sorting.Permutation Coq.Sorting.Mergesort.
-Require Import coqutil.Tactics.destr.
-Require Import coqutil.Datatypes.List.
+Require Import det.coqutil.Sorting.Permutation Coq.Sorting.Mergesort.
+Require Import det.coqutil.Tactics.destr.
+Require Import det.coqutil.Datatypes.List.
 
 Module FstNatOrder <: Orders.TotalLeBool.
   Definition t: Type := nat * nat.
@@ -105,7 +105,7 @@ Section WithOp.
   Qed.
 End WithOp.
 
-Require Import coqutil.Tactics.ltac_list_ops.
+Require Import det.coqutil.Tactics.ltac_list_ops.
 
 Ltac syntactic_permutation :=
   lazymatch goal with

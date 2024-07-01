@@ -1,10 +1,10 @@
 Require Import Coq.ZArith.ZArith.
-Require Import coqutil.Z.Lia.
-Require Import coqutil.Word.Interface coqutil.Datatypes.HList coqutil.Datatypes.PrimitivePair.
-Require Import coqutil.Word.Properties.
-Require Import coqutil.Z.bitblast.
-Require Import coqutil.Z.prove_Zeq_bitwise.
-Require Import coqutil.Byte.
+Require Import det.coqutil.Z.Lia.
+Require Import det.coqutil.Word.Interface det.coqutil.Datatypes.HList det.coqutil.Datatypes.PrimitivePair.
+Require Import det.coqutil.Word.Properties.
+Require Import det.coqutil.Z.bitblast.
+Require Import det.coqutil.Z.prove_Zeq_bitwise.
+Require Import det.coqutil.Byte.
 Local Set Universe Polymorphism.
 
 Local Open Scope Z_scope.

@@ -1,12 +1,12 @@
 Require Import ZArith.
-Require Import Coq.Lists.List coqutil.Datatypes.List.
-Require Import coqutil.Z.Lia.
-Require Import coqutil.Map.Interface coqutil.Map.OfFunc.
-Require Import coqutil.Map.Properties.
-Require Import coqutil.Tactics.autoforward.
-Require Import coqutil.Tactics.Tactics.
+Require Import Coq.Lists.List det.coqutil.Datatypes.List.
+Require Import det.coqutil.Z.Lia.
+Require Import det.coqutil.Map.Interface det.coqutil.Map.OfFunc.
+Require Import det.coqutil.Map.Properties.
+Require Import det.coqutil.Tactics.autoforward.
+Require Import det.coqutil.Tactics.Tactics.
 Import Interface.map MapKeys.map OfFunc.map.
-Require Import coqutil.Word.Interface coqutil.Word.Properties.
+Require Import det.coqutil.Word.Interface det.coqutil.Word.Properties.
 
 Module map.
   Section __. Local Set Default Proof Using "All".

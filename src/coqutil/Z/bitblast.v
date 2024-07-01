@@ -1,5 +1,5 @@
 Require Import Coq.ZArith.ZArith.
-Require Import coqutil.Z.Lia.
+Require Import det.coqutil.Z.Lia.
 Require Import Coq.btauto.Btauto.
 
 Local Open Scope Z_scope.

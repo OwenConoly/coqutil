@@ -1,9 +1,9 @@
 Require Import Coq.ZArith.ZArith. Open Scope Z_scope.
-Require Import coqutil.Word.Interface coqutil.Word.Properties.
-Require Import coqutil.Z.BitOps.
-Require Import coqutil.Tactics.Tactics.
-Require Import coqutil.Tactics.rewr.
-Require Import coqutil.Z.Lia.
+Require Import det.coqutil.Word.Interface det.coqutil.Word.Properties.
+Require Import det.coqutil.Z.BitOps.
+Require Import det.coqutil.Tactics.Tactics.
+Require Import det.coqutil.Tactics.rewr.
+Require Import det.coqutil.Z.Lia.
 
 
 Section Lemmas. Local Set Default Proof Using "All".

@@ -152,7 +152,7 @@ End TriangleBracketNotations.
 Require Import Ltac2.Ltac2.
 Require Ltac2.Option.
 Require Import Ltac2.Bool.
-Require coqutil.Ltac2Lib.Constr.
+Require det.coqutil.Ltac2Lib.Constr.
 
 Set Default Proof Mode "Classic".
 

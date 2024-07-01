@@ -1,12 +1,12 @@
-Require Import coqutil.sanity.
-Require Import coqutil.Decidable.
-Require Import coqutil.Tactics.destr coqutil.Tactics.Tactics.
+Require Import det.coqutil.sanity.
+Require Import det.coqutil.Decidable.
+Require Import det.coqutil.Tactics.destr det.coqutil.Tactics.Tactics.
 Require Import Coq.micromega.Lia.
-Require Import coqutil.Z.Lia.
-Require Import coqutil.Datatypes.Option.
+Require Import det.coqutil.Z.Lia.
+Require Import det.coqutil.Datatypes.Option.
 Require Import Coq.Arith.PeanoNat.
 Require Import Coq.Lists.List. Import ListNotations.
-Require Import coqutil.Sorting.Permutation.
+Require Import det.coqutil.Sorting.Permutation.
 
 Definition enumerate [A] start xs := combine (seq start (@length A xs)) xs.
 Definition zip [A B C] (f : A -> B -> C) xs ys :=

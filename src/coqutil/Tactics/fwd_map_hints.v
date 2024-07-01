@@ -1,6 +1,6 @@
 Require Import Coq.Program.Tactics.
-Require Import coqutil.Map.Interface coqutil.Map.Properties.
-Require Import coqutil.Tactics.autoforward.
+Require Import det.coqutil.Map.Interface det.coqutil.Map.Properties.
+Require Import det.coqutil.Tactics.autoforward.
 
 #[export] Hint Rewrite
      @map.putmany_of_list_zip_cons_put

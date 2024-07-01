@@ -1,5 +1,5 @@
 (* adds BoolSpec instances needed to destruct booleans into Props *)
-Require Import coqutil.Decidable.
+Require Import det.coqutil.Decidable.
 
 Ltac subst_after_destr_default H :=
   match type of H with

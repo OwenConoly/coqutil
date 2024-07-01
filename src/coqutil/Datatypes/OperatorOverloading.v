@@ -93,8 +93,8 @@ Abort.
 (** ** Common arithmetic operator instances *)
 
 Require Import Coq.ZArith.ZArith.
-Require Import coqutil.Map.Interface.
-Require Import coqutil.Word.Interface.
+Require Import det.coqutil.Map.Interface.
+Require Import det.coqutil.Word.Interface.
 
 #[export] Instance MulNat(a b: nat): Multiplication a b (Nat.mul a b) := {}.
 Notation "a * b" := (Nat.mul a b) (only printing) : oo_scope.
@@ -160,7 +160,7 @@ Notation "a / b" := (Z.div a b) (only printing) : oo_scope.
    signed or unsigned division *)
 
 
-Require Import coqutil.Decidable. (* already defines several BoolSpec instances *)
+Require Import det.coqutil.Decidable. (* already defines several BoolSpec instances *)
 Notation "a =? b" := (Nat.eqb a b) (only printing) : oo_scope.
 Notation "a =? b" := (Byte.eqb a b) (only printing) : oo_scope.
 Notation "a =? b" := (N.eqb a b) (only printing) : oo_scope.
@@ -401,8 +401,8 @@ Global Hint Extern 1 (@Getter (?R -> _) ?label ?R' _) =>
 
 (** ** Data access instances for lists *)
 
-Require Import coqutil.Datatypes.Inhabited.
-Require Coq.Lists.List coqutil.Datatypes.List.
+Require Import det.coqutil.Datatypes.Inhabited.
+Require Coq.Lists.List det.coqutil.Datatypes.List.
 
 #[export] Instance BracketGetInList{A: Type}{inh: inhabited A}(l: list A)(i: nat):
   @BracketGet (list A) nat A l i (List.nth i l default) := {}.

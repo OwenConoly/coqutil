@@ -1,5 +1,5 @@
 Require Import Ltac2.Ltac2.
-Require Import coqutil.Ltac2Lib.Constr.
+Require Import det.coqutil.Ltac2Lib.Constr.
 
 Ltac2 rec strip_foralls(t: constr) :=
   match Constr.Unsafe.kind t with

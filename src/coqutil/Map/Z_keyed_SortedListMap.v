@@ -1,7 +1,7 @@
 Require Import Coq.ZArith.ZArith.
-Require Import coqutil.Z.Lia.
-Require Import coqutil.Map.Interface.
-Require Import coqutil.Map.SortedList.
+Require Import det.coqutil.Z.Lia.
+Require Import det.coqutil.Map.Interface.
+Require Import det.coqutil.Map.SortedList.
 
 Local Unset Universe Minimization ToSet.
 

@@ -1,6 +1,6 @@
-Require Import coqutil.Tactics.ident_to_string.
-Require coqutil.Ltac2Lib.List.
-Require coqutil.Ltac2Lib.String.
+Require Import det.coqutil.Tactics.ident_to_string.
+Require det.coqutil.Ltac2Lib.List.
+Require det.coqutil.Ltac2Lib.String.
 Require Import Ltac2.Ltac2. Import Ltac2.Option Ltac2.Constr Ltac2.Constr.Unsafe.
 
 Ltac2 reference_of_constr c :=

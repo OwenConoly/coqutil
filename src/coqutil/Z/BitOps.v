@@ -1,8 +1,8 @@
 Require Import Coq.ZArith.ZArith.
-Require Import coqutil.Z.bitblast.
-Require Import coqutil.Z.ZLib.
-Require Import coqutil.Z.Lia.
-Require Import coqutil.Z.div_mod_to_equations.
+Require Import det.coqutil.Z.bitblast.
+Require Import det.coqutil.Z.ZLib.
+Require Import det.coqutil.Z.Lia.
+Require Import det.coqutil.Z.div_mod_to_equations.
 
 
 Local Open Scope Z_scope.
