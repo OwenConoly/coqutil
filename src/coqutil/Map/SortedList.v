@@ -24,10 +24,106 @@ Module Import parameters.
   Global Arguments strict_order {_} _.
 End parameters. Notation parameters := parameters.parameters.
 
+Section StrictOrder.
+  Context {T : Type} (ltb : T -> T -> bool) {ok : strict_order ltb}.
+  Definition eqb k1 k2 := andb (negb (ltb k1 k2)) (negb (ltb k2 k1)).
+  Lemma ltb_antisym k1 k2 (H:eqb k1 k2 = false) : ltb k1 k2 = negb (ltb k2 k1).
+  Proof.
+    apply Bool.andb_false_iff in H.
+    destruct (ltb k1 k2) eqn:H1; destruct (ltb k2 k1) eqn:H2; cbn in *; trivial.
+    { pose proof ltb_trans _ _ _ H1 H2; pose proof ltb_antirefl k1; congruence. }
+    { destruct H; discriminate. }
+  Qed.
+
+  Lemma eqb_refl: forall x, eqb x x = true.
+  Proof.
+    intros. unfold eqb. rewrite (@ltb_antirefl _ _ ok). reflexivity.
+  Qed.
+
+  Lemma eqb_true: forall k1 k2, eqb k1 k2 = true <-> k1 = k2.
+  Proof.
+    unfold eqb. intros.
+    split; intros.
+    - eapply Bool.andb_true_iff in H. destruct H as [L1 L2].
+      destruct (ltb k1 k2) eqn: E12. 1: discriminate L1.
+      destruct (ltb k2 k1) eqn: E21. 1: discriminate L2.
+      eauto using ltb_total.
+    - subst.
+      apply Bool.andb_true_iff.
+      rewrite ltb_antirefl.
+      intuition.
+  Qed.
+
+  Lemma eqb_false: forall k1 k2, eqb k1 k2 = false <-> k1 <> k2.
+  Proof.
+    intros.
+    rewrite <-Bool.not_true_iff_false.
+    unfold not.
+    rewrite eqb_true.
+    intuition.
+  Qed.
+
+  Lemma eqb_sym: forall k1 k2, eqb k1 k2 = eqb k2 k1.
+  Proof using.
+    unfold eqb. intros.
+    destruct (ltb k1 k2) eqn: E12;
+    destruct (ltb k2 k1) eqn: E21;
+    eauto using ltb_total.
+  Qed.
+End StrictOrder.
+
+Definition lexicog2 {T1 T2 : Type} (lt1 : T1 -> T1 -> bool) (lt2 : T2 -> T2 -> bool) :
+  T1 * T2 -> T1 * T2 -> bool :=
+  fun x1x2 y1y2 =>
+    match x1x2, y1y2 with
+    | (x1, x2), (y1, y2) => orb (lt1 x1 y1) (andb (eqb lt1 x1 y1) (lt2 x2 y2))
+    end.
+
+Lemma lexicog2_strict {T1 T2 : Type} (lt1 : T1 -> T1 -> bool) (lt2 : T2 -> T2 -> bool) :
+  strict_order lt1 ->
+  strict_order lt2 ->
+  strict_order (lexicog2 lt1 lt2).
+Proof.
+  intros H1 H2. assert (H1' := H1). assert (H2' := H2).
+  destruct H1 as [antirefl1 trans1 total1]. destruct H2 as [antirefl2 trans2 total2].
+  constructor.
+  - intros [k1 k2]. simpl. rewrite antirefl1. rewrite antirefl2.
+    rewrite eqb_refl by assumption. reflexivity.
+  - intros [k1 k2] [k1' k2'] [k1'' k2'']. simpl. intros H1 H2.
+    destruct (lt1 k1 k1') eqn:E; destruct (lt1 k1' k1'') eqn:F; simpl in *;
+      try (apply andb_prop in H1; destruct H1 as [H1 H3]);
+      try (apply andb_prop in H2; destruct H2 as [H2 H4]).
+    + erewrite trans1 by eassumption. reflexivity.
+    + apply (eqb_true _ _) in H2. subst. rewrite E. reflexivity.
+    + apply (eqb_true _ _) in H1. subst. rewrite F. reflexivity.
+    + apply (eqb_true _ _) in H1, H2. subst. rewrite (eqb_refl _).
+      erewrite trans2 by eassumption. rewrite antirefl1. reflexivity.
+  - intros [k1 k2] [k1' k2']. simpl. intros H1 H2.
+    destruct (lt1 k1 k1') eqn:E; [discriminate H1|].
+    destruct (lt1 k1' k1) eqn:F; [discriminate H2|].
+    simpl in H1, H2. replace k1' with k1 in *.
+    + f_equal. rewrite (eqb_refl _ _) in *. simpl in *. apply total2; assumption.
+    + apply total1; assumption.
+Qed.
+
+Definition lexicog3 {T1 T2 T3 : Type} lt1 lt2 lt3 : T1 * T2 * T3 -> T1 * T2 * T3 -> bool :=
+  lexicog2 (lexicog2 lt1 lt2) lt3.
+
+Definition lexicog3_strict {T1 T2 T3 : Type} (lt1 : T1 -> T1 -> bool) (lt2 : T2 -> T2 -> bool) (lt3 : T3 -> T3 -> bool) :
+  strict_order lt1 ->
+  strict_order lt2 ->
+  strict_order lt3 ->
+  strict_order (lexicog3 lt1 lt2 lt3) :=
+  fun _ _ _ => lexicog2_strict _ _ (lexicog2_strict _ _ _ _) _.
+
 Section SortedList. Local Set Default Proof Using "All".
   Context {p : unique! parameters} {ok : strict_order ltb}.
 
-  Local Definition eqb k1 k2 := andb (negb (ltb k1 k2)) (negb (ltb k2 k1)).
+  Local Notation eqb := (eqb ltb).
+  Local Notation eqb_true := (eqb_true ltb _).
+  Local Notation eqb_false := (eqb_false ltb _).
+  Local Notation eqb_refl := (eqb_refl ltb _).
+  Local Notation eqb_sym := (eqb_sym ltb _).
 
   Fixpoint put m (k:key) (v:value) : list (key * value) :=
     match m with
@@ -58,14 +154,6 @@ Section SortedList. Local Set Default Proof Using "All".
     end.
 
   Record rep := { value : list (key * value) ; _value_ok : sorted value = true }.
-
-  Lemma ltb_antisym k1 k2 (H:eqb k1 k2 = false) : ltb k1 k2 = negb (ltb k2 k1).
-  Proof.
-    apply Bool.andb_false_iff in H.
-    destruct (ltb k1 k2) eqn:H1; destruct (ltb k2 k1) eqn:H2; cbn in *; trivial.
-    { pose proof ltb_trans _ _ _ H1 H2; pose proof ltb_antirefl k1; congruence. }
-    { destruct H; discriminate. }
-  Qed.
 
   Lemma sorted_put m k v : sorted m = true -> sorted (put m k v) = true.
   Proof.
@@ -103,42 +191,6 @@ Section SortedList. Local Set Default Proof Using "All".
     | Some (_, v) => Some v
     | None => None
     end.
-
-  Lemma eqb_refl: forall x: key, eqb x x = true.
-  Proof.
-    intros. unfold eqb. rewrite (@ltb_antirefl _ _ ok). reflexivity.
-  Qed.
-
-  Lemma eqb_true: forall k1 k2, eqb k1 k2 = true <-> k1 = k2.
-  Proof.
-    unfold eqb. intros.
-    split; intros.
-    - eapply Bool.andb_true_iff in H. destruct H as [L1 L2].
-      destruct (ltb k1 k2) eqn: E12. 1: discriminate L1.
-      destruct (ltb k2 k1) eqn: E21. 1: discriminate L2.
-      eauto using ltb_total.
-    - subst.
-      apply Bool.andb_true_iff.
-      rewrite ltb_antirefl.
-      intuition.
-  Qed.
-
-  Lemma eqb_false: forall k1 k2, eqb k1 k2 = false <-> k1 <> k2.
-  Proof.
-    intros.
-    rewrite <-Bool.not_true_iff_false.
-    unfold not.
-    rewrite eqb_true.
-    intuition.
-  Qed.
-
-  Lemma eqb_sym: forall k1 k2, eqb k1 k2 = eqb k2 k1.
-  Proof using.
-    unfold eqb. intros.
-    destruct (ltb k1 k2) eqn: E12;
-    destruct (ltb k2 k1) eqn: E21;
-    eauto using ltb_total.
-  Qed.
 
   Lemma lookup_cons: forall k1 k2 v l,
       lookup ((k1, v) :: l) k2 = if eqb k2 k1 then Some v else lookup l k2.
@@ -200,7 +252,8 @@ Section SortedList. Local Set Default Proof Using "All".
         specialize (F k). rewrite lookup_cons in F. rewrite eqb_refl in F. discriminate F.
       - destruct a as [k1 v1].
         destruct l2 as [|[k2 v2] l2].
-        + specialize (F k1). cbv [lookup] in F. simpl in F. rewrite eqb_refl in F. discriminate.
+        + specialize (F k1). cbv [lookup] in F. simpl in F. rewrite eqb_refl in F by assumption.
+          discriminate.
         + setoid_rewrite lookup_cons in F.
           apply sorted_cons in ST1. destruct ST1 as [ST1 [N1 M1]].
           apply sorted_cons in ST2. destruct ST2 as [ST2 [N2 M2]].
