@@ -109,12 +109,107 @@ Qed.
 Definition lexicog3 {T1 T2 T3 : Type} lt1 lt2 lt3 : T1 * T2 * T3 -> T1 * T2 * T3 -> bool :=
   lexicog2 (lexicog2 lt1 lt2) lt3.
 
+Definition lexicog4 {T1 T2 T3 T4 : Type} lt1 lt2 lt3 lt4 : T1 * T2 * T3 * T4 -> T1 * T2 * T3 * T4 -> bool :=
+  lexicog2 (lexicog3 lt1 lt2 lt3) lt4.
+
+Fixpoint lexicog {T : Type} (lt : T -> T -> bool) (x y : list T) : bool :=
+  match x, y with
+  | cons a x, cons b y => lexicog2 lt (lexicog lt) (a, x) (b, y)
+  | nil, cons _ _ => true
+  | _, _ => false
+  end.
+
+Fixpoint tuplify_type {A : Type} (l : list A) : Type :=
+  match l with
+  | cons x nil => A
+  | cons x l => A * tuplify_type l
+  | nil => unit
+  end.
+
+(*Fixpoint tuplify {A : Type} (l : list A) {struct l} : tuplify_type l :=
+  match l as x return tuplify_type x with
+  | cons x nil => x
+  | cons x l' => (x, tuplify l')
+  | nil => tt
+  end.*)
+
 Definition lexicog3_strict {T1 T2 T3 : Type} (lt1 : T1 -> T1 -> bool) (lt2 : T2 -> T2 -> bool) (lt3 : T3 -> T3 -> bool) :
   strict_order lt1 ->
   strict_order lt2 ->
   strict_order lt3 ->
   strict_order (lexicog3 lt1 lt2 lt3) :=
   fun _ _ _ => lexicog2_strict _ _ (lexicog2_strict _ _ _ _) _.
+
+Definition lexicog4_strict {T1 T2 T3 T4 : Type} (lt1 : T1 -> T1 -> bool) (lt2 : T2 -> T2 -> bool) (lt3 : T3 -> T3 -> bool) (lt4 : T4 -> T4 -> bool) :
+  strict_order lt1 ->
+  strict_order lt2 ->
+  strict_order lt3 ->
+  strict_order lt4 ->
+  strict_order (lexicog4 lt1 lt2 lt3 lt4) :=
+  fun _ _ _ _ => lexicog2_strict _ _ (lexicog3_strict _ _ _ _ _ _) _.
+
+Definition lift2 {X Y : Type} (i : X -> Y) {Z : Type} (lt : Y -> Y -> Z) : X -> X -> Z :=
+  fun x1 x2 => lt (i x1) (i x2).
+
+Lemma lift2_strict {T1 T2 : Type} (lt2 : T2 -> T2 -> bool) (i : T1 -> T2) :
+  strict_order lt2 ->
+  (forall x y, i x = i y -> x = y) ->
+  strict_order (lift2 i lt2).
+Proof.
+  intros [antirefl trans total] inj. constructor.
+  - intros k. apply antirefl.
+  - intros k1 k2 k3 H1 H2. eapply trans; eassumption.
+  - intros k1 k2 H1 H2. apply inj. eapply total; eassumption.
+Qed.
+
+Definition with_bot {X : Type} (lt : X -> X -> bool) : option X -> option X -> bool :=
+  fun x1 x2 =>
+    match x1, x2 with
+    | _, None => false
+    | None, Some _ => true
+    | Some x1, Some x2 => lt x1 x2
+    end.
+
+Lemma with_bot_strict {X : Type} (lt : X -> X -> bool) :
+  strict_order lt ->
+  strict_order (with_bot lt).
+Proof.
+  intros [antirefl trans total]. constructor.
+  - intros [?|]; simpl; auto.
+  - intros [?|] [?|] [?|]; simpl; eauto; congruence.
+  - intros [?|] [?|]; simpl; intros; try f_equal; eauto; try congruence.
+Qed.
+
+Lemma lexicog_strict {T : Type} (lt : T -> T -> bool) :
+  strict_order lt ->
+  strict_order (lexicog lt).
+Proof.
+  intros H. assert (H' := H). destruct H as [antirefl trans total]. constructor.
+  - intros k. induction k; [reflexivity|]. simpl. rewrite antirefl.
+    rewrite (eqb_refl _ _). rewrite IHk. reflexivity.
+  - intros k1. induction k1; intros k2 k3 H1 H2.
+    + destruct k3.
+      -- destruct k2; discriminate H2.
+      -- reflexivity.
+    + destruct k2; [discriminate H1|]. simpl in H1.
+      -- destruct k3; [discriminate H2|]. simpl in *.
+         destruct (lt a t) eqn:E; destruct (lt t t0) eqn:F; simpl in *;
+           try (apply andb_prop in H1; destruct H1 as [H1 H3]);
+           try (apply andb_prop in H2; destruct H2 as [H2 H4]).
+         ++ erewrite trans; eassumption.
+         ++ apply (eqb_true _ _) in H2. subst. rewrite E. reflexivity.
+         ++ apply (eqb_true _ _) in H1. subst. rewrite F. reflexivity.
+         ++ apply (eqb_true _ _) in H1, H2. subst. rewrite antirefl.
+            rewrite (eqb_refl _ _).  erewrite IHk1 by eassumption. reflexivity.
+  - intros k1. induction k1; intros k2 H1 H2.
+    + destruct k2; [|discriminate H1]. reflexivity.
+    + destruct k2; [discriminate H2|]. simpl in H1, H2.
+      destruct (lt a t) eqn:E; [discriminate H1|].
+      destruct (lt t a) eqn:F; [discriminate H2|].
+      simpl in H1, H2. replace a with t in *.
+      -- f_equal. rewrite (eqb_refl _ _) in *. simpl in *. apply IHk1; assumption.
+      -- apply total; assumption.
+Qed.
 
 Section SortedList. Local Set Default Proof Using "All".
   Context {p : unique! parameters} {ok : strict_order ltb}.
