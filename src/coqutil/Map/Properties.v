@@ -125,150 +125,6 @@ Module map.
         destruct (putmany_spec m1 m2 k); firstorder congruence.
     Qed.
 
-    Lemma disjoint_empty_l x : disjoint empty x. intros k **; pose proof get_empty k; congruence. Qed.
-    Lemma disjoint_empty_r x : disjoint x empty. intros k **; pose proof get_empty k; congruence. Qed.
-    Lemma disjoint_comm m1 m2 : disjoint m1 m2 <-> disjoint m2 m1.
-    Proof. cbv [disjoint]. firstorder idtac. Qed.
-    Lemma disjoint_putmany_r x y z : disjoint x (putmany y z) <-> (disjoint x y /\ disjoint x z).
-    Proof.
-      cbv [disjoint]; repeat (split || intros);
-        destruct (putmany_spec y z k);
-        destruct (get x k) as [?vx|] eqn:?Hx;
-        destruct (get y k) as [?vy|] eqn:?Hy;
-        destruct (get z k) as [?vz|] eqn:?Hz;
-        firstorder congruence.
-    Qed.
-    Lemma disjoint_putmany_l x y z : disjoint (putmany x y) z <-> (disjoint x z /\ disjoint y z).
-    Proof. rewrite disjoint_comm. rewrite disjoint_putmany_r. rewrite 2(disjoint_comm z). reflexivity. Qed.
-    Lemma split_comm m m1 m2 : split m m1 m2 <-> split m m2 m1.
-    Proof. cbv [split]. pose proof disjoint_comm m1 m2. intuition idtac. all:rewrite putmany_comm; eauto. Qed.
-
-    Lemma split_disjoint_putmany : forall x y, disjoint x y -> split (putmany x y) x y.
-    Proof using. cbv [split]; auto using conj, eq_refl with nocore. Qed.
-
-    Lemma split_empty_r m1 m2 : split m1 m2 empty <-> m1 = m2.
-    Proof. cbv [split]. erewrite putmany_empty_r. intuition eauto using disjoint_empty_r. Qed.
-    Lemma split_empty_l m1 m2 : split m1 empty m2 <-> m1 = m2.
-    Proof. rewrite split_comm. eapply split_empty_r. Qed.
-    Lemma split_empty m1 m2 : split empty m1 m2 <-> (m1 = empty /\ m2 = empty).
-    Proof.
-      cbv [split].
-      unshelve erewrite (_:forall a b, a=b<->b=a); [intuition congruence|].
-      rewrite empty_putmany.
-      intuition idtac. subst. eapply disjoint_empty_l.
-    Qed.
-
-    Lemma get_split k m m1 m2 (H : split m m1 m2) :
-      (get m k = get m1 k /\ get m2 k = None) \/ (get m k = get m2 k /\ get m1 k = None).
-    Proof.
-      destruct H as [?Hm H]; subst m.
-      destruct (get m1 k) eqn:?; [ left | right ];
-        destruct (get m2 k) eqn:?; [ solve[edestruct H; eauto] | | | ];
-        erewrite ?get_putmany_left, ?get_putmany_right by eauto; eauto.
-    Qed.
-
-    Lemma split_undef_put: forall m k v,
-        get m k = None ->
-        split (put m k v) (put empty k v) m.
-    Proof.
-      intros.
-      repeat split.
-      - apply map_ext. intros.
-        rewrite get_put_dec.
-        destr (key_eqb k k0).
-        + subst. rewrite get_putmany_left by assumption.
-          rewrite get_put_same. reflexivity.
-        + rewrite get_putmany_dec.
-          destruct (get m k0); [reflexivity|].
-          rewrite get_put_diff by congruence.
-          rewrite get_empty.
-          reflexivity.
-      - unfold disjoint.
-        intros.
-        rewrite get_put_dec in H0.
-        destr (key_eqb k k0).
-        + subst. congruence.
-        + rewrite get_empty in H0. congruence.
-    Qed.
-
-    Lemma split_diff: forall {m m1 m2 m3 m4: map},
-        map.same_domain m2 m4 ->
-        map.split m m1 m2 ->
-        map.split m m3 m4 ->
-        m1 = m3 /\ m2 = m4.
-    Proof.
-      intros.
-      unfold split, same_domain, disjoint, sub_domain in *.
-      destruct H as [S24 S42].
-      destruct H0 as [? S12].
-      destruct H1 as [? S34].
-      subst.
-      assert (forall k, get (putmany m1 m2) k = get (putmany m3 m4) k) as G. {
-        intro. rewrite H0. reflexivity.
-      }
-      split;
-        apply map.map_ext;
-        intro k; specialize (G k); do 2 rewrite get_putmany_dec in G;
-        destr (get m1 k);
-        destr (get m2 k);
-        destr (get m3 k);
-        destr (get m4 k);
-        repeat match goal with
-               | H: _, A: get _ _ = Some _ |- _ => specialize H with (1 := A)
-               | H: exists _, _ |- _ => destruct H
-               end;
-        try contradiction;
-        try congruence.
-    Qed.
-
-    Lemma split_det: forall {m m' m1 m2: map},
-        map.split m  m1 m2 ->
-        map.split m' m1 m2 ->
-        m = m'.
-    Proof using.
-      unfold map.split.
-      intros *. intros [? ?] [? ?].
-      subst.
-      reflexivity.
-    Qed.
-
-    Lemma split_put_l2r: forall m m1 m2 k v,
-        get m1 k = None ->
-        split m (put m1 k v) m2 ->
-        split m m1 (put m2 k v).
-    Proof.
-      unfold map.split, map.disjoint.
-      intros. destruct H0. subst. split.
-      - apply map.map_ext.
-        intros.
-        rewrite !get_putmany_dec.
-        rewrite !get_put_dec.
-        destr (key_eqb k k0).
-        + subst.
-          destr (map.get m2 k0). 2: reflexivity.
-          specialize H1 with (2 := E).
-          rewrite map.get_put_same in H1.
-          exfalso. eauto.
-        + destr (map.get m2 k0); reflexivity.
-      - intros.
-        rewrite get_put_dec in H2.
-        destr (key_eqb k k0).
-        + subst. apply eq_of_eq_Some in H2.
-          congruence.
-        + specialize H1 with (2 := H2).
-          rewrite map.get_put_diff in H1 by congruence.
-          eauto.
-    Qed.
-
-    Lemma split_put_r2l: forall m m1 m2 k v,
-        get m2 k = None ->
-        split m m1 (put m2 k v) ->
-        split m (put m1 k v) m2.
-    Proof.
-      intros. apply split_comm. apply split_put_l2r. 1: assumption.
-      apply split_comm. assumption.
-    Qed.
-
     Lemma extends_get: forall {m1 m2} {k: key} {v: value},
         map.get m1 k = Some v ->
         map.extends m2 m1 ->
@@ -1045,170 +901,6 @@ Module map.
       all: reflexivity.
     Qed.
 
-    Lemma sub_domain_refl(m: map): sub_domain m m.
-    Proof using. unfold sub_domain. eauto. Qed.
-
-    Lemma same_domain_refl(m: map): same_domain m m.
-    Proof using. unfold same_domain. eauto using sub_domain_refl. Qed.
-
-    Lemma sub_domain_trans(m1 m2 m3: map)
-      (S1: sub_domain m1 m2)
-      (S2: sub_domain m2 m3):
-      sub_domain m1 m3.
-    Proof using.
-      unfold sub_domain in *. intros k v1 G1.
-      specialize S1 with (1 := G1). destruct S1 as [v2 S1].
-      specialize S2 with (1 := S1). exact S2.
-    Qed.
-
-    Lemma same_domain_trans(m1 m2 m3: map)
-      (S1: same_domain m1 m2)
-      (S2: same_domain m2 m3):
-      same_domain m1 m3.
-    Proof using.
-      unfold same_domain in *. intuition (eauto using sub_domain_trans).
-    Qed.
-
-    Lemma same_domain_sym(m1 m2: map)(S: same_domain m1 m2): same_domain m2 m1.
-    Proof using. unfold same_domain in *. tauto. Qed.
-
-    Lemma sub_domain_put(m1 m2: map)(k: key)(v1 v2: value)
-        (S: sub_domain m1 m2):
-        sub_domain (put m1 k v1) (put m2 k v2).
-    Proof.
-      unfold sub_domain in *. intros k' v' G.
-      destr (key_eqb k' k).
-      - rewrite get_put_same in G. inversion_option. subst v'.
-        exists v2. apply get_put_same.
-      - rewrite get_put_diff in G by assumption.
-        specialize S with (1 := G).
-        rewrite get_put_diff by assumption.
-        exact S.
-    Qed.
-
-    Lemma sub_domain_put_l(m1 m2: map)(k: key)(v v1: value)
-        (S: sub_domain m1 m2)
-        (G: map.get m1 k = Some v):
-        sub_domain (put m1 k v1) m2.
-    Proof.
-      unfold sub_domain in *. intros k' v' G'.
-      destr (key_eqb k' k).
-      - rewrite get_put_same in G'. inversion_option. subst v'.
-        eapply S. eassumption.
-      - rewrite get_put_diff in G' by assumption.
-        eapply S. eassumption.
-    Qed.
-
-    Lemma sub_domain_put_r(m1 m2: map)(k: key)(v: value)
-        (S: sub_domain m1 m2):
-        sub_domain m1 (map.put m2 k v).
-    Proof.
-      unfold sub_domain in *. intros k' v' G.
-      destr (key_eqb k' k).
-      - exists v. rewrite get_put_same. reflexivity.
-      - rewrite get_put_diff by assumption.
-        eapply S. eassumption.
-    Qed.
-
-    Lemma same_domain_put_l(m1 m2: map)(k: key)(v v1: value)
-        (S: same_domain m1 m2)
-        (G: map.get m1 k = Some v):
-        same_domain (put m1 k v1) m2.
-    Proof.
-      unfold same_domain in *. intuition (eauto using sub_domain_put_l, sub_domain_put_r).
-    Qed.
-
-    Lemma same_domain_put_r(m1 m2: map)(k: key)(v v2: value)
-        (S: same_domain m1 m2)
-        (G: map.get m2 k = Some v):
-        same_domain m1 (put m2 k v2).
-    Proof.
-      unfold same_domain in *. intuition (eauto using sub_domain_put_l, sub_domain_put_r).
-    Qed.
-
-    Lemma sub_domain_putmany_r(m1 m2 m: map)
-        (S: sub_domain m1 m2):
-        sub_domain m1 (putmany m2 m).
-    Proof.
-      unfold sub_domain in *. intros k v1 G.
-      specialize S with (1 := G). destruct S as [v2 S].
-      pose proof (putmany_spec m2 m k) as P.
-      destruct P as [(v & G1 & G2) | (G1 & G2)]; rewrite G2; eauto.
-    Qed.
-
-    Lemma same_domain_put(m1 m2: map)(k: key)(v1 v2: value)
-        (S: same_domain m1 m2):
-        same_domain (put m1 k v1) (put m2 k v2).
-    Proof.
-      unfold same_domain in *. destruct S as [S1 S2]. eauto using sub_domain_put.
-    Qed.
-
-    Lemma getmany_of_tuple_to_sub_domain
-        (n: nat) (m: map) (ks: HList.tuple key n) (vs: HList.tuple value n)
-        (G: map.getmany_of_tuple m ks = Some vs):
-        sub_domain (putmany_of_tuple ks vs map.empty) m.
-    Proof.
-      revert n m ks vs G. induction n; intros m ks vs G k v1 GP.
-      - destruct ks. destruct vs. simpl in *. rewrite get_empty in GP. discriminate.
-      - apply invert_getmany_of_tuple_Some in G. destruct G as [G1 G2].
-        destruct ks as [ki ks]. destruct vs as [vi vs]. simpl in *.
-        destr (key_eqb ki k).
-        + eexists. exact G1.
-        + rewrite get_put_diff in GP by congruence.
-          specialize IHn with (1 := G2). unfold sub_domain in IHn.
-          eapply IHn.
-          eassumption.
-    Qed.
-
-    Lemma putmany_of_tuple_same_domain
-        (n: nat) (m1 m2: map) (ks: HList.tuple key n) (vs1 vs2: HList.tuple value n)
-        (S: same_domain m1 m2):
-        same_domain (map.putmany_of_tuple ks vs1 m1)
-                       (map.putmany_of_tuple ks vs2 m2).
-    Proof.
-      revert m1 m2 ks vs1 vs2 S. induction n; intros m1 m2 ks vs1 vs2 S.
-      - destruct ks. destruct vs1. destruct vs2. simpl. assumption.
-      - destruct vs1 as [v1 vs1]. destruct vs2 as [v2 vs2]. destruct ks as [k ks].
-        simpl in *.
-        specialize IHn with (1 := S).
-        apply same_domain_put.
-        apply IHn.
-    Qed.
-
-    Lemma putmany_of_disjoint_list_zip_same_domain: forall (ks: list key) (vs1 vs2: list value) m1 m2 m1' m2',
-      same_domain m1 m2 ->
-      putmany_of_disjoint_list_zip ks vs1 m1 = Some m1' ->
-      putmany_of_disjoint_list_zip ks vs2 m2 = Some m2' ->
-      same_domain m1' m2'.
-    Proof.
-      induction ks; intros.
-      - simpl in *.
-        destruct vs1; [|discriminate]. apply Option.eq_of_eq_Some in H0.
-        destruct vs2; [|discriminate]. apply Option.eq_of_eq_Some in H1.
-        subst. assumption.
-      - simpl in *.
-        destruct vs1; [discriminate|].
-        destruct (putmany_of_disjoint_list_zip ks vs1 m1) eqn: E1; [|discriminate].
-        destruct (get r a); [discriminate|].
-        apply Option.eq_of_eq_Some in H0.
-        destruct vs2; [discriminate|].
-        destruct (putmany_of_disjoint_list_zip ks vs2 m2) eqn: E2; [|discriminate].
-        destruct (get r0 a); [discriminate|].
-        apply Option.eq_of_eq_Some in H1.
-        subst.
-        apply same_domain_put.
-        eapply IHks; eassumption.
-    Qed.
-
-    Lemma of_disjoint_list_zip_same_domain: forall (ks: list key) (vs1 vs2: list value) m1 m2,
-      of_disjoint_list_zip ks vs1 = Some m1 ->
-      of_disjoint_list_zip ks vs2 = Some m2 ->
-      same_domain m1 m2.
-    Proof.
-      intros. eapply putmany_of_disjoint_list_zip_same_domain; try eassumption.
-      apply same_domain_refl.
-    Qed.
-
     Lemma putmany_of_disjoint_list_zip_length: forall (ks: list key) (vs: list value) m1 m2,
         putmany_of_disjoint_list_zip ks vs m1 = Some m2 ->
         length ks = length vs.
@@ -1225,61 +917,6 @@ Module map.
         length ks = length vs.
     Proof using.
       unfold of_disjoint_list_zip. eauto using putmany_of_disjoint_list_zip_length.
-    Qed.
-
-    Lemma sub_domain_value_indep
-        (n: nat) (m: map) (ks: HList.tuple key n) (vs1 vs2: HList.tuple value n)
-        (S: sub_domain (map.putmany_of_tuple ks vs1 map.empty) m):
-        sub_domain (map.putmany_of_tuple ks vs2 map.empty) m.
-    Proof.
-      pose proof (putmany_of_tuple_same_domain
-                    n empty empty ks vs1 vs2 (same_domain_refl _)) as P.
-      destruct P as [P1 P2].
-      eauto using sub_domain_trans.
-    Qed.
-
-    Lemma sub_domain_disjoint(m1 m1' m2: map)
-        (D: map.disjoint m1' m2)
-        (S: sub_domain m1 m1'):
-        map.disjoint m1 m2.
-    Proof using.
-      unfold sub_domain, disjoint in *. intros k v1 v2 G1 G2.
-      specialize (S _ _ G1). destruct S as [v1' S].
-      eauto.
-    Qed.
-
-    Lemma putmany_of_tuple_preserves_domain
-        (n : nat)(ks : HList.tuple key n) (oldvs vs : HList.tuple value n) (m : map)
-        (G: map.getmany_of_tuple m ks = Some oldvs):
-        same_domain m (map.putmany_of_tuple ks vs m).
-    Proof.
-      unfold same_domain. split.
-      - rewrite putmany_of_tuple_to_putmany.
-        apply sub_domain_putmany_r. apply sub_domain_refl.
-      - unfold sub_domain. intros k v GP.
-        revert ks oldvs vs k v G GP. induction n; intros ks oldvs vs k0 v0 G GP.
-        + destruct ks. destruct vs. simpl in *. eauto.
-        + apply invert_getmany_of_tuple_Some in G.
-          destruct ks as [k ks]. destruct vs as [v vs]. destruct oldvs as [oldv oldvs].
-          simpl in *. destruct G as [G1 G2].
-          destr (key_eqb k0 k).
-          * eexists. exact G1.
-          * rewrite get_put_diff in GP by congruence.
-            specialize IHn with (1 := G2).
-            specialize IHn with (1 := GP).
-            exact IHn.
-    Qed.
-
-    Lemma same_domain_preserves_undef_on(m m': map)(s: key -> Prop):
-      map.undef_on m s ->
-      map.same_domain m m' ->
-      map.undef_on m' s.
-    Proof using ok.
-      intros U S. unfold undef_on, same_domain, sub_domain, agree_on in *.
-      intros. specialize (U _ H). rewrite get_empty in *.
-      destruct S as [S1 S2].
-      destruct (get m' k) eqn: E; [exfalso|reflexivity].
-      specialize S2 with (1 := E). destruct S2 as [v2 S2]. congruence.
     Qed.
 
     Lemma get_of_list_In_NoDup l :
@@ -1427,77 +1064,6 @@ Module map.
         + cbn in H. destruct vs; try discriminate. eapply IHks; eauto.
     Qed.
 
-    Lemma split_remove_put: forall m m1 m2 k v,
-        split m m1 m2 ->
-        get m k = Some v ->
-        split m (remove m1 k) (put m2 k v).
-    Proof.
-      intros.
-      destruct (get_split k _ _ _ H) as [(A & B) | (A & B)].
-      - eapply split_put_l2r.
-        + apply get_remove_same.
-        + replace (put (remove m1 k) k v) with m1. 1: assumption.
-          apply map_ext.
-          intro x.
-          rewrite get_put_dec.
-          destr (key_eqb k x).
-          * congruence.
-          * rewrite get_remove_diff by congruence. reflexivity.
-      - replace (remove m1 k) with m1. 2: {
-          eapply map_ext. intro x. rewrite get_remove_dec.
-          destr (key_eqb k x).
-          - assumption.
-          - reflexivity.
-        }
-        replace (put m2 k v) with m2. 2: {
-          apply map_ext. intro x. rewrite get_put_dec.
-          destr (key_eqb k x).
-          - congruence.
-          - reflexivity.
-        }
-        assumption.
-    Qed.
-
-    Lemma getmany_of_list_to_split: forall m (ks: list key) (vs: list value),
-        getmany_of_list m ks = Some vs ->
-        exists mrest mks, of_list_zip ks vs = Some mks /\ split m mrest mks.
-    Proof.
-      induction ks as [|k ks]; intros; destruct vs as [|v vs].
-      - do 2 eexists. split. 1: reflexivity. unfold split. rewrite putmany_empty_r.
-        split. 1: reflexivity. apply disjoint_empty_r.
-      - discriminate.
-      - cbn in H. destr (get m k); try discriminate.
-        destr (List.option_all (List.map (get m) ks)); try discriminate.
-      - cbn in H. destr (get m k); try discriminate.
-        destr (List.option_all (List.map (get m) ks)); try discriminate.
-        specialize (IHks _ E0). inversion H. clear H. subst.
-        destruct IHks as (mrest & mks & IHksp0 & IHksp1).
-        unfold of_list_zip in *. cbn.
-        exists (remove mrest k), (put mks k v). split.
-        + destr (putmany_of_list_zip ks vs (put empty k v)). 2: {
-            pose proof putmany_of_list_zip_sameLength _ _ _ _ IHksp0 as C.
-            eapply sameLength_putmany_of_list in C. destruct C as [a C].
-            rewrite E1 in C. discriminate.
-          }
-          f_equal.
-          eapply map_ext.
-          intro x.
-          eapply putmany_of_list_zip_to_putmany in E1.
-          destruct E1 as (mks' & F & G).
-          subst r.
-          rewrite IHksp0 in F. apply Option.eq_of_eq_Some in F. subst mks'.
-          rewrite get_putmany_dec.
-          rewrite !get_put_dec.
-          rewrite get_empty.
-          destr (key_eqb k x). 2: destr (get mks x); reflexivity.
-          destr (get mks x). 2: reflexivity.
-          unfold split in IHksp1. destruct IHksp1. subst.
-          rewrite get_putmany_dec in E.
-          rewrite E1 in E.
-          assumption.
-        + eapply split_remove_put; assumption.
-    Qed.
-
     Lemma putmany_of_list_zip_to_In: forall ks vs m k v,
         putmany_of_list_zip ks vs empty = Some m ->
         get m k = Some v ->
@@ -1514,92 +1080,6 @@ Module map.
         destr (key_eqb a k).
         + simpl. auto.
         + right. rewrite get_empty in H0. destr (get s k); try discriminate; eauto.
-    Qed.
-
-    Lemma getmany_of_list_zip_shrink: forall (m m1 m2: map) (ks: list key) (vs: list value),
-        split m m1 m2 ->
-        getmany_of_list m ks = Some vs ->
-        (forall k, List.In k ks -> get m2 k = None) ->
-        getmany_of_list m1 ks = Some vs.
-    Proof.
-      unfold split, disjoint, getmany_of_list. intros. destruct H. subst.
-      rewrite <- H0.
-      f_equal.
-      eapply List.map_ext_in. intros.
-      rewrite get_putmany_dec. rewrite H1; auto.
-    Qed.
-
-    Lemma getmany_of_list_zip_grow: forall (m m1 m2: map) (ks: list key) (vs: list value),
-        split m m1 m2 ->
-        getmany_of_list m1 ks = Some vs ->
-        getmany_of_list m ks = Some vs.
-    Proof.
-      unfold split, disjoint, getmany_of_list. intros. destruct H. subst.
-      rewrite <- H0.
-      f_equal.
-      eapply List.map_ext_in. intros.
-      rewrite get_putmany_dec.
-      destr (get m2 a). 2: reflexivity.
-      exfalso.
-      eapply List.In_option_all in H0. 2: {
-        eapply List.in_map. eassumption.
-      }
-      destruct H0 as (? & ? & ?). eauto.
-    Qed.
-
-    Lemma putmany_of_list_zip_split: forall (l l' l1 l2: map) keys values,
-        putmany_of_list_zip keys values l = Some l' ->
-        split l l1 l2 ->
-        List.Forall (fun k => get l2 k = None) keys ->
-        exists l1', split l' l1' l2 /\ putmany_of_list_zip keys values l1 = Some l1'.
-    Proof.
-      intros.
-      eapply putmany_of_list_zip_to_putmany in H. destruct H as (kv & Mkkv & ?). subst.
-      unfold split in *. destruct H0. subst.
-      setoid_rewrite <- putmany_assoc.
-      assert (disjoint l2 kv) as D. {
-        unfold disjoint. intros *. intros G1 G2.
-        eapply putmany_of_list_zip_to_In in Mkkv. 2: eassumption.
-        eapply List.Forall_forall in H1. 2: exact Mkkv.
-        congruence.
-      }
-      rewrite (putmany_comm l2 kv) by exact D.
-      setoid_rewrite putmany_assoc.
-      exists (putmany l1 kv). split. 1: split.
-      - reflexivity.
-      - eapply disjoint_putmany_l. split. 1: assumption. apply disjoint_comm. assumption.
-      - pose proof @putmany_of_list_zip_sameLength as L.
-        specialize L with (1 := Mkkv).
-        eapply sameLength_putmany_of_list in L. destruct L as [st' L]. rewrite L.
-        eapply putmany_of_list_zip_to_putmany in L. destruct L as (kv' & Mkkv' & ?). subst.
-        congruence.
-    Qed.
-
-    Lemma putmany_of_list_zip_grow: forall (l l1 l1' l2: map) keys values,
-        putmany_of_list_zip keys values l1 = Some l1' ->
-        split l l1 l2 ->
-        List.Forall (fun k => get l2 k = None) keys ->
-        exists l', split l' l1' l2 /\ putmany_of_list_zip keys values l = Some l'.
-    Proof.
-      intros.
-      eapply putmany_of_list_zip_to_putmany in H. destruct H as (kv & Mkkv & ?). subst.
-      assert (disjoint l2 kv) as D. {
-        unfold disjoint. intros *. intros G1 G2.
-        eapply putmany_of_list_zip_to_In in Mkkv. 2: eassumption.
-        eapply List.Forall_forall in H1. 2: exact Mkkv.
-        congruence.
-      }
-      unfold split in *. destruct H0. subst. eexists. split. 1: split.
-      - reflexivity.
-      - eapply disjoint_putmany_l. split. 1: assumption. apply disjoint_comm. assumption.
-      - pose proof @putmany_of_list_zip_sameLength as L.
-        specialize L with (1 := Mkkv).
-        eapply sameLength_putmany_of_list in L. destruct L as [st' L]. rewrite L.
-        eapply putmany_of_list_zip_to_putmany in L. destruct L as (kv' & Mkkv' & ?). subst.
-        replace kv' with kv by congruence. clear Mkkv'.
-        f_equal.
-        rewrite <- putmany_assoc. rewrite (putmany_comm l2 kv) by exact D.
-        apply putmany_assoc.
     Qed.
 
     Definition remove_many (m : map) (ks : list key) : map :=
@@ -1876,99 +1356,6 @@ Module map.
       eapply zipped_lookup_Some_in in E. apply H0. exact E.
     Qed.
 
-    Lemma undef_on_disjoint_of_list_zip: forall (m ksvs: map) ks vs,
-        map.disjoint m ksvs ->
-        map.of_list_zip ks vs = Some ksvs ->
-        map.undef_on m (PropSet.of_list ks).
-    Proof.
-      unfold map.disjoint, map.undef_on, of_list, map.agree_on, PropSet.elem_of.
-      intros. rewrite map.get_empty.
-      pose proof H0 as L. eapply putmany_of_list_zip_sameLength in L.
-      eapply get_of_list_zip with (k := k) in H0.
-      destr (map.get m k). 2: reflexivity. exfalso.
-      match type of H0 with
-      | _ = ?x => destr x
-      end.
-      1: eauto.
-      eapply zipped_lookup_None_notin; eassumption.
-    Qed.
-
-    Lemma get_split_l: forall m m1 m2 k v,
-        split m m1 m2 ->
-        get m2 k = None ->
-        get m k = Some v ->
-        get m1 k = Some v.
-    Proof.
-      intros. unfold split, disjoint in *. destruct H. subst.
-      rewrite get_putmany_dec in H1.
-      rewrite H0 in H1. assumption.
-    Qed.
-
-    Lemma get_split_r: forall m m1 m2 k v,
-        split m m1 m2 ->
-        get m1 k = None ->
-        get m k = Some v ->
-        get m2 k = Some v.
-    Proof.
-      intros. unfold split, disjoint in *. destruct H. subst.
-      rewrite get_putmany_dec in H1.
-      destr (get m2 k); congruence.
-    Qed.
-
-    Lemma get_split_grow_l: forall m m1 m2 k v,
-        split m m1 m2 ->
-        get m2 k = Some v ->
-        get m k = Some v.
-    Proof.
-      intros. unfold split, disjoint in *. destruct H. subst.
-      rewrite get_putmany_dec.
-      rewrite H0. reflexivity.
-    Qed.
-
-    Lemma get_split_grow_r: forall m m1 m2 k v,
-        split m m1 m2 ->
-        get m1 k = Some v ->
-        get m k = Some v.
-    Proof.
-      intros. unfold split, disjoint in *. destruct H. subst.
-      rewrite get_putmany_dec.
-      destr (get m2 k); firstorder congruence.
-    Qed.
-
-    Lemma split_same_footprint m x y z t :
-      map.split m x z -> map.split m y t ->
-      (forall k, map.get x k = None <-> map.get y k = None) -> x = y.
-    Proof.
-      intros.
-      eapply map_ext; intros k; specialize (H1 k).
-      destruct get eqn:? at 2; [|rewrite H1; assumption].
-      pose proof get_split k _ _ _ H0 as Hy.
-      pose proof get_split k _ _ _ H as Hx.
-      intuition congruence.
-    Qed.
-
-    Lemma shrink_disjoint_l: forall m1 m2 m1' mRest,
-        disjoint m1 m2 ->
-        split m1 m1' mRest ->
-        disjoint m1' m2.
-    Proof.
-      unfold split, disjoint. intros. destruct H0. subst.
-      specialize H with (2 := H2). specialize H3 with (1 := H1).
-      rewrite get_putmany_dec in H.
-      destruct (get mRest k); eauto.
-    Qed.
-
-    Lemma shrink_disjoint_r: forall m1 m2 m2' mRest,
-        disjoint m1 m2 ->
-        split m2 m2' mRest ->
-        disjoint m1 m2'.
-    Proof.
-      unfold split, disjoint. intros. destruct H0. subst.
-      specialize H with (1 := H1). specialize H3 with (1 := H2).
-      rewrite get_putmany_dec in H.
-      destruct (get mRest k); eauto.
-    Qed.
-
     Lemma getmany_of_list_cons: forall m k v ks vs,
         map.get m k = Some v ->
         map.getmany_of_list m ks = Some vs ->
@@ -2166,53 +1553,6 @@ Module map.
         congruence.
     Qed.
 
-    Lemma disjoint_put_r m1 m2 k v :
-      get m1 k = None ->
-      disjoint m1 m2 ->
-      disjoint m1 (put m2 k v).
-    Proof.
-      cbv [disjoint]. intros.
-      match goal with H : context [get (put _ ?k _) ?k'] |- _ =>
-                      rewrite get_put_dec in H
-      end.
-      destr (key_eqb k k0); subst; eauto; congruence.
-    Qed.
-
-    Lemma disjoint_put_l m1 m2 k v :
-      get m2 k = None ->
-      disjoint m1 m2 ->
-      disjoint (put m1 k v) m2.
-    Proof.
-      cbv [disjoint]. intros.
-      match goal with H : context [get (put _ ?k _) ?k'] |- _ =>
-                      rewrite get_put_dec in H
-      end.
-      destr (key_eqb k k0); subst; eauto; congruence.
-    Qed.
-
-    Lemma split_put_None m m1 m2 k v
-      (Hsplit : map.split m m1 m2)
-      (H : map.get m1 k = None)
-      : map.split (map.put m k v) m1 (map.put m2 k v).
-    Proof.
-      destruct Hsplit. subst m.
-      rewrite put_putmany_commute.
-      split; trivial.
-      eapply disjoint_put_r; trivial.
-    Qed.
-
-    Lemma split_put_Some m m1 m2 k v
-      (Hsplit : map.split m m1 m2)
-      V (H : map.get m2 k = Some V)
-      : map.split (map.put m k v) m1 (map.put m2 k v).
-    Proof.
-      eapply split_put_None; trivial.
-      destruct Hsplit. subst m.
-      cbv [map.disjoint] in *.
-      destruct (map.get m1 k) eqn:?; trivial.
-      case (H1 _ _ _ Heqo H).
-    Qed.
-
     Lemma put_remove_same m k v :
       put (remove m k)  k v = put m k v.
     Proof.
@@ -2318,37 +1658,708 @@ Module map.
         eauto using forall_keys_put, forall_keys_putmany, forall_keys_empty.
     Qed.
 
-    Lemma split_by_or: forall (P Q: key -> Prop) m,
-        map.forall_keys (fun k => P k \/ Q k) m ->
-        exists mP mQ, m = map.putmany mP mQ /\
-                      map.disjoint mP mQ /\
-                      map.forall_keys P mP /\
-                      map.forall_keys Q mQ.
-    Proof.
-      intros *. eapply map_ind with (m := m); intros.
-      - exists map.empty, map.empty.
-        eauto using disjoint_empty_l, putmany_empty_l, forall_keys_empty.
-      - eapply invert_forall_keys_put in H1. destruct H1 as [HPQ F].
-        specialize (H F). destruct H as (mP & mQ & ? & D & FP & FQ). subst.
-        eapply invert_get_putmany_None in H0. destruct H0.
-        assert (map.disjoint (map.put mP k v) mQ). {
-          unfold map.disjoint in *. intros. rewrite get_put_dec in H1.
-          destr (key_eqb k k0); subst; try congruence; eauto.
+    (* map.disjoint, map.sub_domain and map.same_domain each relate two maps whose
+       value types need not agree, so they get their own section: it is the one
+       whose context can grow a second map type without disturbing anything else. *)
+    Section Domains.
+      Lemma disjoint_empty_l x : disjoint empty x. intros k **; pose proof get_empty k; congruence. Qed.
+      Lemma disjoint_empty_r x : disjoint x empty. intros k **; pose proof get_empty k; congruence. Qed.
+      Lemma disjoint_comm m1 m2 : disjoint m1 m2 <-> disjoint m2 m1.
+      Proof. cbv [disjoint]. firstorder idtac. Qed.
+      Lemma disjoint_putmany_r x y z : disjoint x (putmany y z) <-> (disjoint x y /\ disjoint x z).
+      Proof.
+        cbv [disjoint]; repeat (split || intros);
+          destruct (putmany_spec y z k);
+          destruct (get x k) as [?vx|] eqn:?Hx;
+          destruct (get y k) as [?vy|] eqn:?Hy;
+          destruct (get z k) as [?vz|] eqn:?Hz;
+          firstorder congruence.
+      Qed.
+      Lemma disjoint_putmany_l x y z : disjoint (putmany x y) z <-> (disjoint x z /\ disjoint y z).
+      Proof. rewrite disjoint_comm. rewrite disjoint_putmany_r. rewrite 2(disjoint_comm z). reflexivity. Qed.
+      Lemma sub_domain_refl(m: map): sub_domain m m.
+      Proof using. unfold sub_domain. eauto. Qed.
+
+      Lemma same_domain_refl(m: map): same_domain m m.
+      Proof using. unfold same_domain. eauto using sub_domain_refl. Qed.
+
+      Lemma sub_domain_trans(m1 m2 m3: map)
+        (S1: sub_domain m1 m2)
+        (S2: sub_domain m2 m3):
+        sub_domain m1 m3.
+      Proof using.
+        unfold sub_domain in *. intros k v1 G1.
+        specialize S1 with (1 := G1). destruct S1 as [v2 S1].
+        specialize S2 with (1 := S1). exact S2.
+      Qed.
+
+      Lemma same_domain_trans(m1 m2 m3: map)
+        (S1: same_domain m1 m2)
+        (S2: same_domain m2 m3):
+        same_domain m1 m3.
+      Proof using.
+        unfold same_domain in *. intuition (eauto using sub_domain_trans).
+      Qed.
+
+      Lemma same_domain_sym(m1 m2: map)(S: same_domain m1 m2): same_domain m2 m1.
+      Proof using. unfold same_domain in *. tauto. Qed.
+
+      Lemma sub_domain_put(m1 m2: map)(k: key)(v1 v2: value)
+          (S: sub_domain m1 m2):
+          sub_domain (put m1 k v1) (put m2 k v2).
+      Proof.
+        unfold sub_domain in *. intros k' v' G.
+        destr (key_eqb k' k).
+        - rewrite get_put_same in G. inversion_option. subst v'.
+          exists v2. apply get_put_same.
+        - rewrite get_put_diff in G by assumption.
+          specialize S with (1 := G).
+          rewrite get_put_diff by assumption.
+          exact S.
+      Qed.
+
+      Lemma sub_domain_put_l(m1 m2: map)(k: key)(v v1: value)
+          (S: sub_domain m1 m2)
+          (G: map.get m1 k = Some v):
+          sub_domain (put m1 k v1) m2.
+      Proof.
+        unfold sub_domain in *. intros k' v' G'.
+        destr (key_eqb k' k).
+        - rewrite get_put_same in G'. inversion_option. subst v'.
+          eapply S. eassumption.
+        - rewrite get_put_diff in G' by assumption.
+          eapply S. eassumption.
+      Qed.
+
+      Lemma sub_domain_put_r(m1 m2: map)(k: key)(v: value)
+          (S: sub_domain m1 m2):
+          sub_domain m1 (map.put m2 k v).
+      Proof.
+        unfold sub_domain in *. intros k' v' G.
+        destr (key_eqb k' k).
+        - exists v. rewrite get_put_same. reflexivity.
+        - rewrite get_put_diff by assumption.
+          eapply S. eassumption.
+      Qed.
+
+      Lemma same_domain_put_l(m1 m2: map)(k: key)(v v1: value)
+          (S: same_domain m1 m2)
+          (G: map.get m1 k = Some v):
+          same_domain (put m1 k v1) m2.
+      Proof.
+        unfold same_domain in *. intuition (eauto using sub_domain_put_l, sub_domain_put_r).
+      Qed.
+
+      Lemma same_domain_put_r(m1 m2: map)(k: key)(v v2: value)
+          (S: same_domain m1 m2)
+          (G: map.get m2 k = Some v):
+          same_domain m1 (put m2 k v2).
+      Proof.
+        unfold same_domain in *. intuition (eauto using sub_domain_put_l, sub_domain_put_r).
+      Qed.
+
+      Lemma sub_domain_putmany_r(m1 m2 m: map)
+          (S: sub_domain m1 m2):
+          sub_domain m1 (putmany m2 m).
+      Proof.
+        unfold sub_domain in *. intros k v1 G.
+        specialize S with (1 := G). destruct S as [v2 S].
+        pose proof (putmany_spec m2 m k) as P.
+        destruct P as [(v & G1 & G2) | (G1 & G2)]; rewrite G2; eauto.
+      Qed.
+
+      Lemma same_domain_put(m1 m2: map)(k: key)(v1 v2: value)
+          (S: same_domain m1 m2):
+          same_domain (put m1 k v1) (put m2 k v2).
+      Proof.
+        unfold same_domain in *. destruct S as [S1 S2]. eauto using sub_domain_put.
+      Qed.
+
+      Lemma getmany_of_tuple_to_sub_domain
+          (n: nat) (m: map) (ks: HList.tuple key n) (vs: HList.tuple value n)
+          (G: map.getmany_of_tuple m ks = Some vs):
+          sub_domain (putmany_of_tuple ks vs map.empty) m.
+      Proof.
+        revert n m ks vs G. induction n; intros m ks vs G k v1 GP.
+        - destruct ks. destruct vs. simpl in *. rewrite get_empty in GP. discriminate.
+        - apply invert_getmany_of_tuple_Some in G. destruct G as [G1 G2].
+          destruct ks as [ki ks]. destruct vs as [vi vs]. simpl in *.
+          destr (key_eqb ki k).
+          + eexists. exact G1.
+          + rewrite get_put_diff in GP by congruence.
+            specialize IHn with (1 := G2). unfold sub_domain in IHn.
+            eapply IHn.
+            eassumption.
+      Qed.
+
+      Lemma putmany_of_tuple_same_domain
+          (n: nat) (m1 m2: map) (ks: HList.tuple key n) (vs1 vs2: HList.tuple value n)
+          (S: same_domain m1 m2):
+          same_domain (map.putmany_of_tuple ks vs1 m1)
+                         (map.putmany_of_tuple ks vs2 m2).
+      Proof.
+        revert m1 m2 ks vs1 vs2 S. induction n; intros m1 m2 ks vs1 vs2 S.
+        - destruct ks. destruct vs1. destruct vs2. simpl. assumption.
+        - destruct vs1 as [v1 vs1]. destruct vs2 as [v2 vs2]. destruct ks as [k ks].
+          simpl in *.
+          specialize IHn with (1 := S).
+          apply same_domain_put.
+          apply IHn.
+      Qed.
+
+      Lemma putmany_of_disjoint_list_zip_same_domain: forall (ks: list key) (vs1 vs2: list value) m1 m2 m1' m2',
+        same_domain m1 m2 ->
+        putmany_of_disjoint_list_zip ks vs1 m1 = Some m1' ->
+        putmany_of_disjoint_list_zip ks vs2 m2 = Some m2' ->
+        same_domain m1' m2'.
+      Proof.
+        induction ks; intros.
+        - simpl in *.
+          destruct vs1; [|discriminate]. apply Option.eq_of_eq_Some in H0.
+          destruct vs2; [|discriminate]. apply Option.eq_of_eq_Some in H1.
+          subst. assumption.
+        - simpl in *.
+          destruct vs1; [discriminate|].
+          destruct (putmany_of_disjoint_list_zip ks vs1 m1) eqn: E1; [|discriminate].
+          destruct (get r a); [discriminate|].
+          apply Option.eq_of_eq_Some in H0.
+          destruct vs2; [discriminate|].
+          destruct (putmany_of_disjoint_list_zip ks vs2 m2) eqn: E2; [|discriminate].
+          destruct (get r0 a); [discriminate|].
+          apply Option.eq_of_eq_Some in H1.
+          subst.
+          apply same_domain_put.
+          eapply IHks; eassumption.
+      Qed.
+
+      Lemma of_disjoint_list_zip_same_domain: forall (ks: list key) (vs1 vs2: list value) m1 m2,
+        of_disjoint_list_zip ks vs1 = Some m1 ->
+        of_disjoint_list_zip ks vs2 = Some m2 ->
+        same_domain m1 m2.
+      Proof.
+        intros. eapply putmany_of_disjoint_list_zip_same_domain; try eassumption.
+        apply same_domain_refl.
+      Qed.
+
+      Lemma sub_domain_value_indep
+          (n: nat) (m: map) (ks: HList.tuple key n) (vs1 vs2: HList.tuple value n)
+          (S: sub_domain (map.putmany_of_tuple ks vs1 map.empty) m):
+          sub_domain (map.putmany_of_tuple ks vs2 map.empty) m.
+      Proof.
+        pose proof (putmany_of_tuple_same_domain
+                      n empty empty ks vs1 vs2 (same_domain_refl _)) as P.
+        destruct P as [P1 P2].
+        eauto using sub_domain_trans.
+      Qed.
+
+      Lemma sub_domain_disjoint(m1 m1' m2: map)
+          (D: map.disjoint m1' m2)
+          (S: sub_domain m1 m1'):
+          map.disjoint m1 m2.
+      Proof using.
+        unfold sub_domain, disjoint in *. intros k v1 v2 G1 G2.
+        specialize (S _ _ G1). destruct S as [v1' S].
+        eauto.
+      Qed.
+
+      Lemma putmany_of_tuple_preserves_domain
+          (n : nat)(ks : HList.tuple key n) (oldvs vs : HList.tuple value n) (m : map)
+          (G: map.getmany_of_tuple m ks = Some oldvs):
+          same_domain m (map.putmany_of_tuple ks vs m).
+      Proof.
+        unfold same_domain. split.
+        - rewrite putmany_of_tuple_to_putmany.
+          apply sub_domain_putmany_r. apply sub_domain_refl.
+        - unfold sub_domain. intros k v GP.
+          revert ks oldvs vs k v G GP. induction n; intros ks oldvs vs k0 v0 G GP.
+          + destruct ks. destruct vs. simpl in *. eauto.
+          + apply invert_getmany_of_tuple_Some in G.
+            destruct ks as [k ks]. destruct vs as [v vs]. destruct oldvs as [oldv oldvs].
+            simpl in *. destruct G as [G1 G2].
+            destr (key_eqb k0 k).
+            * eexists. exact G1.
+            * rewrite get_put_diff in GP by congruence.
+              specialize IHn with (1 := G2).
+              specialize IHn with (1 := GP).
+              exact IHn.
+      Qed.
+
+      Lemma same_domain_preserves_undef_on(m m': map)(s: key -> Prop):
+        map.undef_on m s ->
+        map.same_domain m m' ->
+        map.undef_on m' s.
+      Proof using ok.
+        intros U S. unfold undef_on, same_domain, sub_domain, agree_on in *.
+        intros. specialize (U _ H). rewrite get_empty in *.
+        destruct S as [S1 S2].
+        destruct (get m' k) eqn: E; [exfalso|reflexivity].
+        specialize S2 with (1 := E). destruct S2 as [v2 S2]. congruence.
+      Qed.
+
+      Lemma undef_on_disjoint_of_list_zip: forall (m ksvs: map) ks vs,
+          map.disjoint m ksvs ->
+          map.of_list_zip ks vs = Some ksvs ->
+          map.undef_on m (PropSet.of_list ks).
+      Proof.
+        unfold map.disjoint, map.undef_on, of_list, map.agree_on, PropSet.elem_of.
+        intros. rewrite map.get_empty.
+        pose proof H0 as L. eapply putmany_of_list_zip_sameLength in L.
+        eapply get_of_list_zip with (k := k) in H0.
+        destr (map.get m k). 2: reflexivity. exfalso.
+        match type of H0 with
+        | _ = ?x => destr x
+        end.
+        1: eauto.
+        eapply zipped_lookup_None_notin; eassumption.
+      Qed.
+
+      Lemma disjoint_put_r m1 m2 k v :
+        get m1 k = None ->
+        disjoint m1 m2 ->
+        disjoint m1 (put m2 k v).
+      Proof.
+        cbv [disjoint]. intros.
+        match goal with H : context [get (put _ ?k _) ?k'] |- _ =>
+                        rewrite get_put_dec in H
+        end.
+        destr (key_eqb k k0); subst; eauto; congruence.
+      Qed.
+
+      Lemma disjoint_put_l m1 m2 k v :
+        get m2 k = None ->
+        disjoint m1 m2 ->
+        disjoint (put m1 k v) m2.
+      Proof.
+        cbv [disjoint]. intros.
+        match goal with H : context [get (put _ ?k _) ?k'] |- _ =>
+                        rewrite get_put_dec in H
+        end.
+        destr (key_eqb k k0); subst; eauto; congruence.
+      Qed.
+    End Domains.
+
+    (* map.split forces all three of its maps to have the same type, so these are
+       single-map lemmas like the ones above; they come last only because they are
+       stated and proved in terms of the disjointness API. *)
+    Section Split.
+      Lemma split_comm m m1 m2 : split m m1 m2 <-> split m m2 m1.
+      Proof. cbv [split]. pose proof disjoint_comm m1 m2. intuition idtac. all:rewrite putmany_comm; eauto. Qed.
+
+      Lemma split_disjoint_putmany : forall x y, disjoint x y -> split (putmany x y) x y.
+      Proof using. cbv [split]; auto using conj, eq_refl with nocore. Qed.
+
+      Lemma split_empty_r m1 m2 : split m1 m2 empty <-> m1 = m2.
+      Proof. cbv [split]. erewrite putmany_empty_r. intuition eauto using disjoint_empty_r. Qed.
+      Lemma split_empty_l m1 m2 : split m1 empty m2 <-> m1 = m2.
+      Proof. rewrite split_comm. eapply split_empty_r. Qed.
+      Lemma split_empty m1 m2 : split empty m1 m2 <-> (m1 = empty /\ m2 = empty).
+      Proof.
+        cbv [split].
+        unshelve erewrite (_:forall a b, a=b<->b=a); [intuition congruence|].
+        rewrite empty_putmany.
+        intuition idtac. subst. eapply disjoint_empty_l.
+      Qed.
+
+      Lemma get_split k m m1 m2 (H : split m m1 m2) :
+        (get m k = get m1 k /\ get m2 k = None) \/ (get m k = get m2 k /\ get m1 k = None).
+      Proof.
+        destruct H as [?Hm H]; subst m.
+        destruct (get m1 k) eqn:?; [ left | right ];
+          destruct (get m2 k) eqn:?; [ solve[edestruct H; eauto] | | | ];
+          erewrite ?get_putmany_left, ?get_putmany_right by eauto; eauto.
+      Qed.
+
+      Lemma split_undef_put: forall m k v,
+          get m k = None ->
+          split (put m k v) (put empty k v) m.
+      Proof.
+        intros.
+        repeat split.
+        - apply map_ext. intros.
+          rewrite get_put_dec.
+          destr (key_eqb k k0).
+          + subst. rewrite get_putmany_left by assumption.
+            rewrite get_put_same. reflexivity.
+          + rewrite get_putmany_dec.
+            destruct (get m k0); [reflexivity|].
+            rewrite get_put_diff by congruence.
+            rewrite get_empty.
+            reflexivity.
+        - unfold disjoint.
+          intros.
+          rewrite get_put_dec in H0.
+          destr (key_eqb k k0).
+          + subst. congruence.
+          + rewrite get_empty in H0. congruence.
+      Qed.
+
+      Lemma split_diff: forall {m m1 m2 m3 m4: map},
+          map.same_domain m2 m4 ->
+          map.split m m1 m2 ->
+          map.split m m3 m4 ->
+          m1 = m3 /\ m2 = m4.
+      Proof.
+        intros.
+        unfold split, same_domain, disjoint, sub_domain in *.
+        destruct H as [S24 S42].
+        destruct H0 as [? S12].
+        destruct H1 as [? S34].
+        subst.
+        assert (forall k, get (putmany m1 m2) k = get (putmany m3 m4) k) as G. {
+          intro. rewrite H0. reflexivity.
         }
-        assert (map.disjoint mP (map.put mQ k v)). {
-          unfold map.disjoint in *. intros. rewrite get_put_dec in H3.
-          destr (key_eqb k k0); subst; try congruence; eauto.
+        split;
+          apply map.map_ext;
+          intro k; specialize (G k); do 2 rewrite get_putmany_dec in G;
+          destr (get m1 k);
+          destr (get m2 k);
+          destr (get m3 k);
+          destr (get m4 k);
+          repeat match goal with
+                 | H: _, A: get _ _ = Some _ |- _ => specialize H with (1 := A)
+                 | H: exists _, _ |- _ => destruct H
+                 end;
+          try contradiction;
+          try congruence.
+      Qed.
+
+      Lemma split_det: forall {m m' m1 m2: map},
+          map.split m  m1 m2 ->
+          map.split m' m1 m2 ->
+          m = m'.
+      Proof using.
+        unfold map.split.
+        intros *. intros [? ?] [? ?].
+        subst.
+        reflexivity.
+      Qed.
+
+      Lemma split_put_l2r: forall m m1 m2 k v,
+          get m1 k = None ->
+          split m (put m1 k v) m2 ->
+          split m m1 (put m2 k v).
+      Proof.
+        unfold map.split, map.disjoint.
+        intros. destruct H0. subst. split.
+        - apply map.map_ext.
+          intros.
+          rewrite !get_putmany_dec.
+          rewrite !get_put_dec.
+          destr (key_eqb k k0).
+          + subst.
+            destr (map.get m2 k0). 2: reflexivity.
+            specialize H1 with (2 := E).
+            rewrite map.get_put_same in H1.
+            exfalso. eauto.
+          + destr (map.get m2 k0); reflexivity.
+        - intros.
+          rewrite get_put_dec in H2.
+          destr (key_eqb k k0).
+          + subst. apply eq_of_eq_Some in H2.
+            congruence.
+          + specialize H1 with (2 := H2).
+            rewrite map.get_put_diff in H1 by congruence.
+            eauto.
+      Qed.
+
+      Lemma split_put_r2l: forall m m1 m2 k v,
+          get m2 k = None ->
+          split m m1 (put m2 k v) ->
+          split m (put m1 k v) m2.
+      Proof.
+        intros. apply split_comm. apply split_put_l2r. 1: assumption.
+        apply split_comm. assumption.
+      Qed.
+
+      Lemma split_remove_put: forall m m1 m2 k v,
+          split m m1 m2 ->
+          get m k = Some v ->
+          split m (remove m1 k) (put m2 k v).
+      Proof.
+        intros.
+        destruct (get_split k _ _ _ H) as [(A & B) | (A & B)].
+        - eapply split_put_l2r.
+          + apply get_remove_same.
+          + replace (put (remove m1 k) k v) with m1. 1: assumption.
+            apply map_ext.
+            intro x.
+            rewrite get_put_dec.
+            destr (key_eqb k x).
+            * congruence.
+            * rewrite get_remove_diff by congruence. reflexivity.
+        - replace (remove m1 k) with m1. 2: {
+            eapply map_ext. intro x. rewrite get_remove_dec.
+            destr (key_eqb k x).
+            - assumption.
+            - reflexivity.
+          }
+          replace (put m2 k v) with m2. 2: {
+            apply map_ext. intro x. rewrite get_put_dec.
+            destr (key_eqb k x).
+            - congruence.
+            - reflexivity.
+          }
+          assumption.
+      Qed.
+
+      Lemma getmany_of_list_to_split: forall m (ks: list key) (vs: list value),
+          getmany_of_list m ks = Some vs ->
+          exists mrest mks, of_list_zip ks vs = Some mks /\ split m mrest mks.
+      Proof.
+        induction ks as [|k ks]; intros; destruct vs as [|v vs].
+        - do 2 eexists. split. 1: reflexivity. unfold split. rewrite putmany_empty_r.
+          split. 1: reflexivity. apply disjoint_empty_r.
+        - discriminate.
+        - cbn in H. destr (get m k); try discriminate.
+          destr (List.option_all (List.map (get m) ks)); try discriminate.
+        - cbn in H. destr (get m k); try discriminate.
+          destr (List.option_all (List.map (get m) ks)); try discriminate.
+          specialize (IHks _ E0). inversion H. clear H. subst.
+          destruct IHks as (mrest & mks & IHksp0 & IHksp1).
+          unfold of_list_zip in *. cbn.
+          exists (remove mrest k), (put mks k v). split.
+          + destr (putmany_of_list_zip ks vs (put empty k v)). 2: {
+              pose proof putmany_of_list_zip_sameLength _ _ _ _ IHksp0 as C.
+              eapply sameLength_putmany_of_list in C. destruct C as [a C].
+              rewrite E1 in C. discriminate.
+            }
+            f_equal.
+            eapply map_ext.
+            intro x.
+            eapply putmany_of_list_zip_to_putmany in E1.
+            destruct E1 as (mks' & F & G).
+            subst r.
+            rewrite IHksp0 in F. apply Option.eq_of_eq_Some in F. subst mks'.
+            rewrite get_putmany_dec.
+            rewrite !get_put_dec.
+            rewrite get_empty.
+            destr (key_eqb k x). 2: destr (get mks x); reflexivity.
+            destr (get mks x). 2: reflexivity.
+            unfold split in IHksp1. destruct IHksp1. subst.
+            rewrite get_putmany_dec in E.
+            rewrite E1 in E.
+            assumption.
+          + eapply split_remove_put; assumption.
+      Qed.
+
+      Lemma getmany_of_list_zip_shrink: forall (m m1 m2: map) (ks: list key) (vs: list value),
+          split m m1 m2 ->
+          getmany_of_list m ks = Some vs ->
+          (forall k, List.In k ks -> get m2 k = None) ->
+          getmany_of_list m1 ks = Some vs.
+      Proof.
+        unfold split, disjoint, getmany_of_list. intros. destruct H. subst.
+        rewrite <- H0.
+        f_equal.
+        eapply List.map_ext_in. intros.
+        rewrite get_putmany_dec. rewrite H1; auto.
+      Qed.
+
+      Lemma getmany_of_list_zip_grow: forall (m m1 m2: map) (ks: list key) (vs: list value),
+          split m m1 m2 ->
+          getmany_of_list m1 ks = Some vs ->
+          getmany_of_list m ks = Some vs.
+      Proof.
+        unfold split, disjoint, getmany_of_list. intros. destruct H. subst.
+        rewrite <- H0.
+        f_equal.
+        eapply List.map_ext_in. intros.
+        rewrite get_putmany_dec.
+        destr (get m2 a). 2: reflexivity.
+        exfalso.
+        eapply List.In_option_all in H0. 2: {
+          eapply List.in_map. eassumption.
         }
-        destruct HPQ as [HP | HQ].
-        + exists (map.put mP k v), mQ.
-          rewrite (putmany_comm (map.put mP k v)) by assumption.
-          rewrite <- (put_putmany_commute k v mQ mP).
-          rewrite putmany_comm by assumption.
-          eauto using forall_keys_put.
-        + exists mP, (map.put mQ k v).
-          rewrite <- (put_putmany_commute k v mP mQ).
-          eauto using forall_keys_put.
-    Qed.
+        destruct H0 as (? & ? & ?). eauto.
+      Qed.
+
+      Lemma putmany_of_list_zip_split: forall (l l' l1 l2: map) keys values,
+          putmany_of_list_zip keys values l = Some l' ->
+          split l l1 l2 ->
+          List.Forall (fun k => get l2 k = None) keys ->
+          exists l1', split l' l1' l2 /\ putmany_of_list_zip keys values l1 = Some l1'.
+      Proof.
+        intros.
+        eapply putmany_of_list_zip_to_putmany in H. destruct H as (kv & Mkkv & ?). subst.
+        unfold split in *. destruct H0. subst.
+        setoid_rewrite <- putmany_assoc.
+        assert (disjoint l2 kv) as D. {
+          unfold disjoint. intros *. intros G1 G2.
+          eapply putmany_of_list_zip_to_In in Mkkv. 2: eassumption.
+          eapply List.Forall_forall in H1. 2: exact Mkkv.
+          congruence.
+        }
+        rewrite (putmany_comm l2 kv) by exact D.
+        setoid_rewrite putmany_assoc.
+        exists (putmany l1 kv). split. 1: split.
+        - reflexivity.
+        - eapply disjoint_putmany_l. split. 1: assumption. apply disjoint_comm. assumption.
+        - pose proof @putmany_of_list_zip_sameLength as L.
+          specialize L with (1 := Mkkv).
+          eapply sameLength_putmany_of_list in L. destruct L as [st' L]. rewrite L.
+          eapply putmany_of_list_zip_to_putmany in L. destruct L as (kv' & Mkkv' & ?). subst.
+          congruence.
+      Qed.
+
+      Lemma putmany_of_list_zip_grow: forall (l l1 l1' l2: map) keys values,
+          putmany_of_list_zip keys values l1 = Some l1' ->
+          split l l1 l2 ->
+          List.Forall (fun k => get l2 k = None) keys ->
+          exists l', split l' l1' l2 /\ putmany_of_list_zip keys values l = Some l'.
+      Proof.
+        intros.
+        eapply putmany_of_list_zip_to_putmany in H. destruct H as (kv & Mkkv & ?). subst.
+        assert (disjoint l2 kv) as D. {
+          unfold disjoint. intros *. intros G1 G2.
+          eapply putmany_of_list_zip_to_In in Mkkv. 2: eassumption.
+          eapply List.Forall_forall in H1. 2: exact Mkkv.
+          congruence.
+        }
+        unfold split in *. destruct H0. subst. eexists. split. 1: split.
+        - reflexivity.
+        - eapply disjoint_putmany_l. split. 1: assumption. apply disjoint_comm. assumption.
+        - pose proof @putmany_of_list_zip_sameLength as L.
+          specialize L with (1 := Mkkv).
+          eapply sameLength_putmany_of_list in L. destruct L as [st' L]. rewrite L.
+          eapply putmany_of_list_zip_to_putmany in L. destruct L as (kv' & Mkkv' & ?). subst.
+          replace kv' with kv by congruence. clear Mkkv'.
+          f_equal.
+          rewrite <- putmany_assoc. rewrite (putmany_comm l2 kv) by exact D.
+          apply putmany_assoc.
+      Qed.
+
+      Lemma get_split_l: forall m m1 m2 k v,
+          split m m1 m2 ->
+          get m2 k = None ->
+          get m k = Some v ->
+          get m1 k = Some v.
+      Proof.
+        intros. unfold split, disjoint in *. destruct H. subst.
+        rewrite get_putmany_dec in H1.
+        rewrite H0 in H1. assumption.
+      Qed.
+
+      Lemma get_split_r: forall m m1 m2 k v,
+          split m m1 m2 ->
+          get m1 k = None ->
+          get m k = Some v ->
+          get m2 k = Some v.
+      Proof.
+        intros. unfold split, disjoint in *. destruct H. subst.
+        rewrite get_putmany_dec in H1.
+        destr (get m2 k); congruence.
+      Qed.
+
+      Lemma get_split_grow_l: forall m m1 m2 k v,
+          split m m1 m2 ->
+          get m2 k = Some v ->
+          get m k = Some v.
+      Proof.
+        intros. unfold split, disjoint in *. destruct H. subst.
+        rewrite get_putmany_dec.
+        rewrite H0. reflexivity.
+      Qed.
+
+      Lemma get_split_grow_r: forall m m1 m2 k v,
+          split m m1 m2 ->
+          get m1 k = Some v ->
+          get m k = Some v.
+      Proof.
+        intros. unfold split, disjoint in *. destruct H. subst.
+        rewrite get_putmany_dec.
+        destr (get m2 k); firstorder congruence.
+      Qed.
+
+      Lemma split_same_footprint m x y z t :
+        map.split m x z -> map.split m y t ->
+        (forall k, map.get x k = None <-> map.get y k = None) -> x = y.
+      Proof.
+        intros.
+        eapply map_ext; intros k; specialize (H1 k).
+        destruct get eqn:? at 2; [|rewrite H1; assumption].
+        pose proof get_split k _ _ _ H0 as Hy.
+        pose proof get_split k _ _ _ H as Hx.
+        intuition congruence.
+      Qed.
+
+      Lemma shrink_disjoint_l: forall m1 m2 m1' mRest,
+          disjoint m1 m2 ->
+          split m1 m1' mRest ->
+          disjoint m1' m2.
+      Proof.
+        unfold split, disjoint. intros. destruct H0. subst.
+        specialize H with (2 := H2). specialize H3 with (1 := H1).
+        rewrite get_putmany_dec in H.
+        destruct (get mRest k); eauto.
+      Qed.
+
+      Lemma shrink_disjoint_r: forall m1 m2 m2' mRest,
+          disjoint m1 m2 ->
+          split m2 m2' mRest ->
+          disjoint m1 m2'.
+      Proof.
+        unfold split, disjoint. intros. destruct H0. subst.
+        specialize H with (1 := H1). specialize H3 with (1 := H2).
+        rewrite get_putmany_dec in H.
+        destruct (get mRest k); eauto.
+      Qed.
+
+      Lemma split_put_None m m1 m2 k v
+        (Hsplit : map.split m m1 m2)
+        (H : map.get m1 k = None)
+        : map.split (map.put m k v) m1 (map.put m2 k v).
+      Proof.
+        destruct Hsplit. subst m.
+        rewrite put_putmany_commute.
+        split; trivial.
+        eapply disjoint_put_r; trivial.
+      Qed.
+
+      Lemma split_put_Some m m1 m2 k v
+        (Hsplit : map.split m m1 m2)
+        V (H : map.get m2 k = Some V)
+        : map.split (map.put m k v) m1 (map.put m2 k v).
+      Proof.
+        eapply split_put_None; trivial.
+        destruct Hsplit. subst m.
+        cbv [map.disjoint] in *.
+        destruct (map.get m1 k) eqn:?; trivial.
+        case (H1 _ _ _ Heqo H).
+      Qed.
+
+      Lemma split_by_or: forall (P Q: key -> Prop) m,
+          map.forall_keys (fun k => P k \/ Q k) m ->
+          exists mP mQ, m = map.putmany mP mQ /\
+                        map.disjoint mP mQ /\
+                        map.forall_keys P mP /\
+                        map.forall_keys Q mQ.
+      Proof.
+        intros *. eapply map_ind with (m := m); intros.
+        - exists map.empty, map.empty.
+          eauto using disjoint_empty_l, putmany_empty_l, forall_keys_empty.
+        - eapply invert_forall_keys_put in H1. destruct H1 as [HPQ F].
+          specialize (H F). destruct H as (mP & mQ & ? & D & FP & FQ). subst.
+          eapply invert_get_putmany_None in H0. destruct H0.
+          assert (map.disjoint (map.put mP k v) mQ). {
+            unfold map.disjoint in *. intros. rewrite get_put_dec in H1.
+            destr (key_eqb k k0); subst; try congruence; eauto.
+          }
+          assert (map.disjoint mP (map.put mQ k v)). {
+            unfold map.disjoint in *. intros. rewrite get_put_dec in H3.
+            destr (key_eqb k k0); subst; try congruence; eauto.
+          }
+          destruct HPQ as [HP | HQ].
+          + exists (map.put mP k v), mQ.
+            rewrite (putmany_comm (map.put mP k v)) by assumption.
+            rewrite <- (put_putmany_commute k v mQ mP).
+            rewrite putmany_comm by assumption.
+            eauto using forall_keys_put.
+          + exists mP, (map.put mQ k v).
+            rewrite <- (put_putmany_commute k v mP mQ).
+            eauto using forall_keys_put.
+      Qed.
+    End Split.
+
   End WithMap.
 
   Section WithTwoMaps. Local Set Default Proof Using "All".
