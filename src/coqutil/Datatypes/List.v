@@ -36,7 +36,7 @@ Section WithAAndEqDecider. Local Set Default Proof Using "All".
       (forall z, BinInt.Z.le BinInt.Z0 z /\ BinInt.Z.lt z (BinInt.Z.of_nat (length l)) ->
                  Znth z l d = Znth z l' d') ->
       l = l'.
-  Proof.
+  Proof using.
     intros. eapply List.nth_ext. 1: assumption.
     intros. unfold Znth in H0. specialize (H0 (BinInt.Z.of_nat n)).
     replace (BinInt.Z.ltb (BinInt.Z.of_nat n) BinNums.Z0) with false in H0. 2: Lia.lia.
@@ -69,7 +69,7 @@ Section WithAAndEqDecider. Local Set Default Proof Using "All".
       | x :: xs => if List.find (eqb x) xs then rec xs else x :: rec xs
       end.
 
-  Definition list_eqb (x y : list A) : bool :=
+  Definition list_eqb : Eqb (list A) := fun x y =>
     ((length x =? length y)%nat && forallb (fun xy => eqb (fst xy) (snd xy)) (combine x y))%bool.
 
   Lemma removeb_not_In:
@@ -285,6 +285,7 @@ Section WithAAndEqDecider. Local Set Default Proof Using "All".
         eapply Bool.orb_true_r.
   Qed.
 End WithAAndEqDecider.
+#[global] Existing Instance list_eqb.
 Global Hint Resolve list_eqb_spec : typeclass_instances.
 
 Section Lexicographic.

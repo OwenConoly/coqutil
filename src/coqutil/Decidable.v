@@ -10,7 +10,7 @@ Require Coq.Strings.String.
 #[global] Hint Opaque Nat.ltb : typeclass_instances.
 
 Existing Class BoolSpec.
-Hint Mode BoolSpec - - ! : typeclass_instances.
+#[global] Hint Mode BoolSpec - - ! : typeclass_instances.
 (* Advantage of BoolSpec over Bool.reflect and sumbool:
    BoolSpec lives in Prop, (while the other two live in Set), so terms intended for
    computation can't accidentally match over it, so we won't have problems that

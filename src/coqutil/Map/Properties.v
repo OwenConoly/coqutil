@@ -1842,12 +1842,12 @@ Module map.
             destr (eqb v v). 1: reflexivity. exfalso; congruence.
       Qed.
 
-      #[export] Instance map_eqb : Eqb map :=
+      Definition map_eqb : Eqb map :=
         fun m1 m2 => andb (extendsb m1 m2) (extendsb m2 m1).
 
-      Lemma eqb_spec m1 m2: BoolSpec (m1 = m2) (m1 <> m2) (eqb m1 m2).
+      Lemma eqb_spec m1 m2: BoolSpec (m1 = m2) (m1 <> m2) (map_eqb m1 m2).
       Proof.
-        destr (eqb m1 m2); unfold eqb.
+        destr (map_eqb m1 m2); unfold eqb.
         - destruct E as [E21 E12].
           eapply extendsb_spec in E12. eapply extendsb_spec in E21.
           constructor. eapply map_ext. unfold extends in *. intros.
@@ -2457,4 +2457,5 @@ Module map.
 End map.
 
 #[global] Hint Opaque map.map_eqb : typeclass_instances.
+#[export] Existing Instance map.map_eqb.
 #[export] Existing Instance map.eqb_spec.

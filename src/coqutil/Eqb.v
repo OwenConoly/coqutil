@@ -69,6 +69,8 @@ Arguments eqb_spec {A}%_type_scope {Impl Pf} a b.
 #[export] Hint Rewrite eqb_prop_iff using solve[typeclasses eauto] : bool.
 #[export] Hint Rewrite eqb_refl_true using solve[typeclasses eauto] : bool.
 
+#[global] Hint Mode Eqb ! : typeclass_instances.
+
 
 (* Instances for some standard types *)
 
