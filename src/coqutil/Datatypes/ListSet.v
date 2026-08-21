@@ -23,6 +23,7 @@ End ListSetDefs.
 
 Section ListSetProofs. Local Set Default Proof Using "All".
   Context {E: Type} {eeqb : Eqb E} {eeqb_spec: EqDecider eeqb}.
+  Implicit Types s l : list E.
 
   Lemma length_list_union_nil_r: forall (l: list E),
       length (list_union l []) <= length l.
@@ -147,7 +148,7 @@ Section ListSetProofs. Local Set Default Proof Using "All".
     - eapply IHl2. eapply removeb_Forall_weaken. assumption.
   Qed.
 
-  Lemma of_list_removeb: forall x A,
+  Lemma of_list_removeb: forall (x : E) A,
       of_list (removeb x A) = diff (of_list A) (singleton_set x).
   Proof using eeqb_spec.
     unfold of_list, diff, singleton_set, elem_of. intros.
@@ -165,9 +166,9 @@ Section ListSetProofs. Local Set Default Proof Using "All".
   Qed.
 
   Lemma subset_of_list_removeb:
-    forall (l: list E) s,
-      PropSet.subset (PropSet.of_list (List.removeb s l))
-        (PropSet.of_list (l)).
+    forall (l: list E) e,
+      PropSet.subset (PropSet.of_list (List.removeb e l))
+        (PropSet.of_list l).
   Proof.
     intros. rewrite of_list_removeb.
     unfold PropSet.subset.

@@ -403,7 +403,7 @@ Section PropSetLemmasWithEqDecider. Local Set Default Proof Using "All".
   Context {A: Type}.
   Context {aeqb : Eqb A} {aeqb_dec: EqDecider aeqb}.
   Lemma subset_of_list_cons:
-   forall h t l,
+   forall (h : A) t l,
       subset (of_list (h::t)) (of_list l) <->
       existsb (eqb h) l = true /\ subset (of_list t) (of_list l).
   Proof.
@@ -432,7 +432,7 @@ Section PropSetLemmasWithEqDecider. Local Set Default Proof Using "All".
   Qed.
 
   Lemma existsb_of_list :
-    forall k keySet,
+    forall (k : A) keySet,
       List.existsb (eqb k) keySet = true <-> k \in PropSet.of_list keySet.
   Proof.
     intros; unfold iff; split.
